@@ -32,7 +32,7 @@ module networkManagerModule 'br:cloudmechanixavm.azurecr.io/avm/res/network/netw
 Deploy a basic Network Manager in the current subscription and tenant root management group:
 
 ```bicep
-module networkManager 'br:public/avm/res/network/network-managers:0.1.0' = {
+module networkManager 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.1' = {
   name: 'networkManagerBasic'
   params: {
     name: 'centralNetMgr'
@@ -47,7 +47,7 @@ module networkManager 'br:public/avm/res/network/network-managers:0.1.0' = {
 Deploy a Network Manager with locks, diagnostics, role assignments, and partner attribution:
 
 ```bicep
-module networkManager 'br:public/avm/res/network/network-managers:0.1.0' = {
+module networkManager 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.1' = {
   name: 'networkManagerAdvanced'
   params: {
     name: 'corpNetMgr'
