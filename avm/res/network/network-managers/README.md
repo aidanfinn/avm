@@ -5,10 +5,8 @@ This AVM-compliant Bicep module deploys an [Azure Virtual Network Manager](https
 ## 📦 Module Registry Reference
 
 ```bicep
-module networkManagerModule 'br:<registry>/avm/res/network/network-managers:<version>' = { ... }
+module networkManagerModule 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.1' = { ... }
 ```
-
-Replace `<registry>` with your Bicep registry (e.g. `br/public`) and `<version>` with the required version tag.
 
 ---
 
