@@ -61,6 +61,8 @@ param networkGroups networkGroupType[] = []
 @sys.description('An array of connectivity configurations to deploy.')
 param connectivityConfigurations connectivityConfigurationType[] = []
 
+@sys.description('An array of routing configurations to deploy under the Network Manager.')
+param routingConfigurations routingConfigurationType[] = []
 
 // ================//
 // Variables       //
@@ -210,12 +212,26 @@ module networkGroupModules 'networkGroup/main.bicep' = [for (group, i) in networ
   }
 }]
 
-module connectivityConfigurationsModule './connectivityConfiguration/main.bicep' = [for (configs, i) in connectivityConfigurations: {
+module connectivityConfigurationsModule './connectivityConfiguration/main.bicep' = [for (config, i) in connectivityConfigurations: {
   name: '${take(name, 37)}-connectivity-${i}'
   params: {
     networkManagerName: networkManager.name
-    connectivityConfigurations: connectivityConfigurations
+    connectivityConfiguration: config
   }
+  dependsOn: [
+    networkGroupModules
+  ]
+}]
+
+module routingConfigurationModules './routingConfiguration/main.bicep' = [for (config, i) in routingConfigurations: {
+  name: '${take(name, 37)}-routing-${i}'
+  params: {
+    networkManagerName: networkManager.name
+    routingConfiguration: config
+  }
+  dependsOn: [
+    networkGroupModules
+  ]
 }]
 
 // ================//
@@ -246,9 +262,19 @@ output ipamPools array = [
 @sys.description('An array of objects containing the resource ID, name, and address prefixes for each deployed IPAM pool.')
 output connectivityConfigurations array = [
   for (i, pool) in range(0, length(connectivityConfigurations)): {
-    id: connectivityConfigurationsModule[i].outputs.resourceIds
+    id: connectivityConfigurationsModule[i].outputs.id
+    name: connectivityConfigurationsModule[i].outputs.name
   }
 ]
+
+@sys.description('An array of objects containing the resource ID and name of each deployed routing configuration.')
+output routingConfigurations array = [
+  for (i, config) in range(0, length(routingConfigurations)): {
+    id: routingConfigurationModules[i].outputs.id
+    name: routingConfigurationModules[i].outputs.name
+  }
+]
+
 
 // =============== //
 //   Definitions   //
@@ -305,7 +331,6 @@ type networkGroupStaticMemberResourceType = {
   resourceId: string
 }
 
-
 @sys.description('Defines the structure of a connectivity configuration.')
 type connectivityConfigurationType = {
   @sys.description('The name of the connectivity configuration.')
@@ -322,8 +347,26 @@ type connectivityConfigurationType = {
   hubs: array
 
   @sys.description('Indicates whether the configuration is global.')
-  isGlobal: bool
+  isGlobal: 'bool | string'
+
+  @sys.description('Indicates whether to delete existing peering configurations when applying this connectivity configuration.')
+  deleteExistingPeering: 'bool | string'
 
   @sys.description('An array of group resource IDs to which the configuration applies.')
   appliesToGroups: array
+}
+
+@sys.description('Defines the structure of a routing configuration.')
+type routingConfigurationType = {
+  @sys.description('The name of the routing configuration.')
+  name: string
+
+  @sys.description('The description of the routing configuration.')
+  description: string?
+
+  @sys.description('The list of applicable network groups.')
+  appliesToGroups: array
+
+  @sys.description('The associated routing policy ID, if applicable.')
+  routingPolicyId: string?
 }
