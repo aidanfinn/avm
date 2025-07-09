@@ -1,34 +1,38 @@
 // Copyright (c) Cloud Mechanix
 // Licensed under the MIT License.
 
-metadata name = 'Network Manager Routing Configuration'
-metadata description = 'Deploys one or more Routing Configurations for Azure Network Manager.'
+metadata name = 'Network Manager Rules Collection'
+metadata description = 'Deploys one or more Rules Collections to a Routing Configurations for Azure Network Manager.'
 
 // ============= //
 // Parameters    //
 // ============= //
 
-@sys.description('The name of the parent Azure Network Manager.')
-param networkManagerName string
+@sys.description('The name of the parent Routing Configuration in Azure Network Manager.')
+param routingConfigName string
 
-@sys.description('The routing configuration to deploy.')
-param routingConfiguration routingConfigurationType
+@sys.description('The Rule Collection to deploy.')
+param ruleCollection ruleCollectionType
 
 // ================//
 // Deployments     //
 // ================//
 
-resource routingConfig 'Microsoft.Network/networkManagers/routingConfigurations@2024-05-01' = {
-  name: '${networkManagerName}/${routingConfiguration.name}'
+resource ruleCollectionModule 'Microsoft.Network/networkManagers/routingConfigurations/ruleCollections@2024-09-01-preview' = {
+  name: '${routingConfigName}/${ruleCollection.name}'
   properties: {
-    description: routingConfiguration.?description ?? ''
+    appliesTo: ruleCollection.?appliesTo ?? []
+    description: ruleCollection.?description ?? ''
+    disableBgpRoutePropagation: ruleCollection.disableBgpRoutePropagation ?? 'True'
+    peeringRoutePropagationRules: ruleCollection.?peeringRoutePropagationRules ?? []
   }
 }
 
-module ruleCollectionsModule 'rulesCollection.bicep' = [for ruleCollection in routingConfiguration.?ruleCollections!: {
+module rulesModule 'rule.bicep' = [for rule in ruleCollection.?rules!: {
+  name: rule.name
   params: {
-    routingConfigName: routingConfig.name
-    ruleCollection: ruleCollection
+    ruleCollectionName: ruleCollection.name
+    rule: rule
   }
 }]
 
@@ -36,24 +40,23 @@ module ruleCollectionsModule 'rulesCollection.bicep' = [for ruleCollection in ro
 // Outputs         //
 // ================//
 
-output id string = routingConfig.id
-output name string = routingConfig.name
+@sys.description('The resource ID of the Rule Collection.')
+output id string = ruleCollectionModule.id
+
+@sys.description('The name of the Rule Collection')
+output name string = ruleCollectionModule.name
+
+@sys.description('The rules of the Rule Collection.')
+output rules array = [
+  for (i, rule) in range(0, length(ruleCollection.?rules!)): {
+    id: rulesModule[i].outputs.id
+    name: rulesModule[i].outputs.name
+  }
+]
 
 // =============== //
 //   Definitions   //
 // =============== //
-
-@sys.description('Defines the structure of a routing configuration.')
-type routingConfigurationType = {
-  @sys.description('The name of the routing configuration.')
-  name: string
-
-  @sys.description('The description of the routing configuration.')
-  description: string?
-
-  @sys.description('The list of applicable network groups.')
-  ruleCollections: ruleCollectionType[]?
-}
 
 @sys.description('Defines the Rules Collections of a Routing Configuration')
 type ruleCollectionType = {
