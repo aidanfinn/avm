@@ -58,6 +58,10 @@ param ipamPools ipamPoolType[] = []
 @sys.description('Optional. List of network groups to create under the Network Manager.')
 param networkGroups networkGroupType[] = []
 
+@sys.description('An array of connectivity configurations to deploy.')
+param connectivityConfigurations connectivityConfigurationType[] = []
+
+
 // ================//
 // Variables       //
 // ================//
@@ -206,6 +210,14 @@ module networkGroupModules 'networkGroup/main.bicep' = [for (group, i) in networ
   }
 }]
 
+module connectivityConfigurationsModule './connectivityConfiguration/main.bicep' = [for (configs, i) in connectivityConfigurations: {
+  name: '${take(name, 37)}-connectivity-${i}'
+  params: {
+    networkManagerName: networkManager.name
+    connectivityConfigurations: connectivityConfigurations
+  }
+}]
+
 // ================//
 // Outputs         //
 // ================//
@@ -228,6 +240,13 @@ output ipamPools array = [
     id: ipamPoolModules[i].outputs.id
     name: ipamPoolModules[i].outputs.name
     addressPrefixes: ipamPoolModules[i].outputs.addressPrefixes
+  }
+]
+
+@sys.description('An array of objects containing the resource ID, name, and address prefixes for each deployed IPAM pool.')
+output connectivityConfigurations array = [
+  for (i, pool) in range(0, length(connectivityConfigurations)): {
+    id: connectivityConfigurationsModule[i].outputs.resourceIds
   }
 ]
 
@@ -284,4 +303,27 @@ type networkGroupType = {
 type networkGroupStaticMemberResourceType = {
   @sys.description('The resource ID of the static member to be added to the network group.')
   resourceId: string
+}
+
+
+@sys.description('Defines the structure of a connectivity configuration.')
+type connectivityConfigurationType = {
+  @sys.description('The name of the connectivity configuration.')
+  @minLength(1)
+  name: string
+
+  @sys.description('The description of the connectivity configuration.')
+  description: string
+
+  @sys.description('The connectivity topology (e.g., HubAndSpoke, Mesh).')
+  connectivityTopology: 'HubAndSpoke' | 'Mesh'
+
+  @sys.description('An array of hub resource IDs.')
+  hubs: array
+
+  @sys.description('Indicates whether the configuration is global.')
+  isGlobal: bool
+
+  @sys.description('An array of group resource IDs to which the configuration applies.')
+  appliesToGroups: array
 }
