@@ -1,0 +1,139 @@
+# Azure Verified Module: Network Manager
+
+This AVM-compliant Bicep module deploys an [Azure Virtual Network Manager](https://learn.microsoft.com/azure/virtual-network-manager/overview) resource. 
+It also supports optional creation of IPAM (IP Address Management) pools under the Network Manager. 
+The module is WAF-aligned for observability, security, and governance with support for diagnostic settings, locks, and role assignments.
+
+## 📦 Module Registry Reference
+
+```bicep
+module networkManagerModule 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.1' = { ... }
+```
+
+---
+
+## 🔧 Parameters
+
+| Name                          | Type     | Description                                                                                      | Default                                                                 |
+|-------------------------------|----------|--------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| `name`                        | `string` | **Required.** Name of the Network Manager (1–80 chars, `^[a-zA-Z0-9_.-]+$`).                     | –                                                                       |
+| `location`                    | `string` | Azure region where the Network Manager is deployed.                                              | `resourceGroup().location`                                             |
+| `description`                 | `string` | Optional description of the Network Manager.                                                     | `''`                                                                    |
+| `tags`                        | `object` | Optional tags to apply to the Network Manager.                                                   | `{}`                                                                    |
+| `partnerLinkId`               | `string` | Customer Usage Attribution (CUA) ID for partner tracking.                                        | `'cca1ef9c-c4b1-4c3d-8973-7e5341ab6792'` (Cloud Mechanix default)      |
+| `networkManagerScopes`        | `object` | Scope for the Network Manager. Management groups or subscriptions.                              | `{ managementGroups: ["/providers/Microsoft.Management/managementGroups/${tenant().tenantId}"], subscriptions: [] }` |
+| `networkManagerScopeAccesses` | `array`  | List of features to apply: `Connectivity`, `SecurityAdmin`, `Routing`.                          | `[ 'Connectivity', 'SecurityAdmin', 'Routing' ]`                       |
+| `lock`                        | `object` | Optional resource lock. Supports `CanNotDelete`, `ReadOnly`, or `None`.                         | `{}`                                                                    |
+| `diagnosticSettings`          | `array`  | Optional diagnostics settings. Send logs/metrics to Log Analytics, Event Hub, or Storage.       | `[]`                                                                    |
+| `roleAssignments`             | `array`  | Optional array of role assignments to apply at the Network Manager level.                       | `[]`                                                                    |
+| `ipamPools`                   | `array`  | Optional list of IPAM pools to create under the Network Manager.                                | `[]`                                                                    |
+
+---
+
+## ✅ Basic Usage
+
+Deploy a basic Network Manager in the current subscription and tenant root management group:
+
+```bicep
+module networkManager 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.1' = {
+  name: 'networkManagerBasic'
+  params: {
+    name: 'centralNetMgr'
+  }
+}
+```
+
+---
+
+## 🚀 Advanced Usage with IPAM Pools
+
+```bicep
+module networkManager 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.1' = {
+  name: 'networkManagerWithIpam'
+  params: {
+    name: 'corpNetMgr'
+    location: 'westeurope'
+    description: 'Corporate-wide virtual network manager'
+    tags: {
+      environment: 'prod'
+      project: 'networking'
+    }
+    partnerLinkId: 'cca1ef9c-c4b1-4c3d-8973-7e5341ab6792'
+    networkManagerScopes: {
+      managementGroups: [
+        '/providers/Microsoft.Management/managementGroups/contoso'
+      ]
+      subscriptions: [
+        '/subscriptions/11111111-2222-3333-4444-555555555555'
+      ]
+    }
+    networkManagerScopeAccesses: [
+      'Connectivity'
+      'SecurityAdmin'
+    ]
+    lock: {
+      kind: 'CanNotDelete'
+      name: 'protectNetMgr'
+    }
+    diagnosticSettings: [
+      {
+        name: 'netMgrDiagnostics'
+        workspaceResourceId: '/subscriptions/.../resourceGroups/.../providers/Microsoft.OperationalInsights/workspaces/centralLogs'
+        metricCategories: [
+          { category: 'AllMetrics', enabled: true }
+        ]
+        logCategoriesAndGroups: [
+          { categoryGroup: 'allLogs', enabled: true }
+        ]
+        logAnalyticsDestinationType: 'Dedicated'
+      }
+    ]
+    roleAssignments: [
+      {
+        principalId: '00000000-0000-0000-0000-000000000000'
+        roleDefinitionIdOrName: 'Reader'
+      }
+    ]
+    ipamPools: [
+      {
+        name: 'mainPool'
+        addressPrefixes: ['10.0.0.0/16']
+        displayName: 'Main IPAM Pool'
+      }
+      {
+        name: 'subnetPool'
+        addressPrefixes: ['10.0.1.0/24']
+        parentPoolName: 'mainPool'
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 📤 Outputs
+
+| Name               | Type     | Description                                                |
+|--------------------|----------|------------------------------------------------------------|
+| `resourceGroupName`| `string` | The resource group where the Network Manager is deployed.  |
+| `name`             | `string` | The name of the Network Manager.                          |
+| `resourceId`       | `string` | The full resource ID of the Network Manager.              |
+| `location`         | `string` | The Azure region of the deployed Network Manager.         |
+| `ipamPools`        | `array`  | Array of deployed IPAM pools with name, ID, and CIDRs.    |
+
+---
+
+## 🧪 Test Scenarios
+
+- [ ] Deploy with only required parameters
+- [ ] Deploy with all optional parameters (lock, diagnostics, roles, IPAM pools)
+- [ ] Deploy with nested IPAM pools
+- [ ] Deploy to management group and subscription scopes
+
+---
+
+## 📘 Resources
+
+- [Azure Virtual Network Manager Documentation](https://learn.microsoft.com/en-us/azure/virtual-network-manager/)
+- [Azure Verified Modules (AVM) Standards](https://azure.github.io/Azure-Verified-Modules/)
