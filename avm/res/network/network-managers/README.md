@@ -1,139 +1,134 @@
-# Azure Verified Module: Network Manager
+# Network Manager
 
-This AVM-compliant Bicep module deploys an [Azure Virtual Network Manager](https://learn.microsoft.com/azure/virtual-network-manager/overview) resource. 
-It also supports optional creation of IPAM (IP Address Management) pools under the Network Manager. 
-The module is WAF-aligned for observability, security, and governance with support for diagnostic settings, locks, and role assignments.
+Deploys an **Azure Network Manager** resource along with optional sub-resources:
+- **Network Groups** via sub-module
+- **IPAM Pools** via sub-module
+- Diagnostic Settings, Locks, and Role Assignments
+
+---
 
 ## 📦 Module Registry Reference
 
 ```bicep
-module networkManagerModule 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.1' = { ... }
-```
-
----
-
-## 🔧 Parameters
-
-| Name                          | Type     | Description                                                                                      | Default                                                                 |
-|-------------------------------|----------|--------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| `name`                        | `string` | **Required.** Name of the Network Manager (1–80 chars, `^[a-zA-Z0-9_.-]+$`).                     | –                                                                       |
-| `location`                    | `string` | Azure region where the Network Manager is deployed.                                              | `resourceGroup().location`                                             |
-| `description`                 | `string` | Optional description of the Network Manager.                                                     | `''`                                                                    |
-| `tags`                        | `object` | Optional tags to apply to the Network Manager.                                                   | `{}`                                                                    |
-| `partnerLinkId`               | `string` | Customer Usage Attribution (CUA) ID for partner tracking.                                        | `'cca1ef9c-c4b1-4c3d-8973-7e5341ab6792'` (Cloud Mechanix default)      |
-| `networkManagerScopes`        | `object` | Scope for the Network Manager. Management groups or subscriptions.                              | `{ managementGroups: ["/providers/Microsoft.Management/managementGroups/${tenant().tenantId}"], subscriptions: [] }` |
-| `networkManagerScopeAccesses` | `array`  | List of features to apply: `Connectivity`, `SecurityAdmin`, `Routing`.                          | `[ 'Connectivity', 'SecurityAdmin', 'Routing' ]`                       |
-| `lock`                        | `object` | Optional resource lock. Supports `CanNotDelete`, `ReadOnly`, or `None`.                         | `{}`                                                                    |
-| `diagnosticSettings`          | `array`  | Optional diagnostics settings. Send logs/metrics to Log Analytics, Event Hub, or Storage.       | `[]`                                                                    |
-| `roleAssignments`             | `array`  | Optional array of role assignments to apply at the Network Manager level.                       | `[]`                                                                    |
-| `ipamPools`                   | `array`  | Optional list of IPAM pools to create under the Network Manager.                                | `[]`                                                                    |
-
----
-
-## ✅ Basic Usage
-
-Deploy a basic Network Manager in the current subscription and tenant root management group:
-
-```bicep
-module networkManager 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.1' = {
-  name: 'networkManagerBasic'
+module networkManager 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.2' = {
+  name: 'networkManager'
   params: {
     name: 'centralNetMgr'
-  }
-}
-```
-
----
-
-## 🚀 Advanced Usage with IPAM Pools
-
-```bicep
-module networkManager 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v0.1' = {
-  name: 'networkManagerWithIpam'
-  params: {
-    name: 'corpNetMgr'
     location: 'westeurope'
-    description: 'Corporate-wide virtual network manager'
-    tags: {
-      environment: 'prod'
-      project: 'networking'
-    }
-    partnerLinkId: 'cca1ef9c-c4b1-4c3d-8973-7e5341ab6792'
-    networkManagerScopes: {
-      managementGroups: [
-        '/providers/Microsoft.Management/managementGroups/contoso'
-      ]
-      subscriptions: [
-        '/subscriptions/11111111-2222-3333-4444-555555555555'
-      ]
-    }
-    networkManagerScopeAccesses: [
-      'Connectivity'
-      'SecurityAdmin'
+    networkGroups: [
+      {
+        name: 'spoke-group'
+        description: 'All spoke VNets'
+        networkGroupType: 'ConnectedSecurityGroups'
+        associatedNetworks: [
+          '/subscriptions/.../resourceGroups/.../providers/Microsoft.Network/virtualNetworks/spoke1-vnet'
+          '/subscriptions/.../resourceGroups/.../providers/Microsoft.Network/virtualNetworks/spoke2-vnet'
+        ]
+        tags: { env: 'prod' }
+      }
     ]
-    lock: {
-      kind: 'CanNotDelete'
-      name: 'protectNetMgr'
-    }
+    ipamPools: [
+      {
+        name: 'corp-pool'
+        addressPrefixes: ['10.1.0.0/16']
+        displayName: 'Corporate Pool'
+        tags: { env: 'prod' }
+      }
+    ]
     diagnosticSettings: [
       {
         name: 'netMgrDiagnostics'
-        workspaceResourceId: '/subscriptions/.../resourceGroups/.../providers/Microsoft.OperationalInsights/workspaces/centralLogs'
-        metricCategories: [
-          { category: 'AllMetrics', enabled: true }
-        ]
-        logCategoriesAndGroups: [
-          { categoryGroup: 'allLogs', enabled: true }
-        ]
+        workspaceResourceId: '/subscriptions/.../resourceGroups/.../providers/Microsoft.OperationalInsights/workspaces/logs'
+        metricCategories: [{ category: 'AllMetrics', enabled: true }]
+        logCategoriesAndGroups: [{ categoryGroup: 'allLogs', enabled: true }]
         logAnalyticsDestinationType: 'Dedicated'
       }
     ]
+    lock: {
+      kind: 'CanNotDelete'
+      name: 'lock-centralNetMgr'
+    }
     roleAssignments: [
       {
         principalId: '00000000-0000-0000-0000-000000000000'
         roleDefinitionIdOrName: 'Reader'
       }
     ]
-    ipamPools: [
-      {
-        name: 'mainPool'
-        addressPrefixes: ['10.0.0.0/16']
-        displayName: 'Main IPAM Pool'
-      }
-      {
-        name: 'subnetPool'
-        addressPrefixes: ['10.0.1.0/24']
-        parentPoolName: 'mainPool'
-      }
-    ]
   }
 }
 ```
 
 ---
 
-## 📤 Outputs
+## 🔧 Parameters
 
-| Name               | Type     | Description                                                |
-|--------------------|----------|------------------------------------------------------------|
-| `resourceGroupName`| `string` | The resource group where the Network Manager is deployed.  |
-| `name`             | `string` | The name of the Network Manager.                          |
-| `resourceId`       | `string` | The full resource ID of the Network Manager.              |
-| `location`         | `string` | The Azure region of the deployed Network Manager.         |
-| `ipamPools`        | `array`  | Array of deployed IPAM pools with name, ID, and CIDRs.    |
+| Name                         | Type     | Description |
+|------------------------------|----------|-------------|
+| `name`                       | `string` | **Required.** Network Manager name (1–80 chars). |
+| `location`                   | `string` | Optional. Azure region. |
+| `description`                | `string` | Optional. Description text. |
+| `tags`                       | `object` | Optional. Tags. |
+| `partnerLinkId`              | `string` | Optional. CUA GUID. |
+| `networkManagerScopes`       | `object` | Optional. Scopes: `managementGroups`, `subscriptions`. |
+| `networkManagerScopeAccesses`| `array`  | Optional. List of features. |
+| `lock`                       | `lockType?` | Optional. Lock settings. |
+| `diagnosticSettings`         | `diagnosticSettingFullType[]?` | Optional. Diagnostic settings. |
+| `roleAssignments`            | `roleAssignmentType[]?` | Optional. Role assignments. |
+| `networkGroups`              | `networkGroupType[]?` | Optional. Network Groups (see type). |
+| `ipamPools`                  | `ipamPoolType[]?` | Optional. IPAM pools (see type). |
 
 ---
 
-## 🧪 Test Scenarios
+## 🔹 `networkGroupType`
 
-- [ ] Deploy with only required parameters
-- [ ] Deploy with all optional parameters (lock, diagnostics, roles, IPAM pools)
-- [ ] Deploy with nested IPAM pools
-- [ ] Deploy to management group and subscription scopes
+| Property              | Type     | Description |
+|-----------------------|----------|-------------|
+| `name`                | `string` | Required. |
+| `description`         | `string?` | Optional. |
+| `networkGroupType`    | `string` | Required (e.g. `ConnectedSecurityGroups`). |
+| `associatedNetworks`  | `array`  | Required. Resource IDs of VNets/Subnets. |
+| `location`            | `string?` | Optional. |
+| `tags`                | `object?` | Optional. |
+
+---
+
+## 🔹 `ipamPoolType`
+
+| Property             | Type     | Description |
+|----------------------|----------|-------------|
+| `name`               | `string` | Required. |
+| `location`           | `string?` | Optional. |
+| `addressPrefixes`    | `array`  | Required. List of CIDRs. |
+| `description`        | `string?` | Optional. |
+| `displayName`        | `string?` | Optional. |
+| `parentPoolName`     | `string?` | Optional. |
+| `tags`               | `object?` | Optional. |
+| `provisioningState`  | `string?` | Optional; managed by Azure. |
+
+---
+
+## 📤 Outputs
+
+| Name                     | Type     | Description |
+|--------------------------|----------|-------------|
+| `resourceId`             | `string` | Network Manager ID. |
+| `name`                   | `string` | Network Manager name. |
+| `location`               | `string` | Network Manager region. |
+| `networkGroups`          | `array`  | Created Network Groups (id/name). |
+| `ipamPools`              | `array`  | Created IPAM pools (id/name/prefixes). |
+
+---
+
+## 🧪 Advanced Usage Example
+
+See Module Registry Reference above for full deployment example with all sub-resources configured.
 
 ---
 
 ## 📘 Resources
 
-- [Azure Virtual Network Manager Documentation](https://learn.microsoft.com/en-us/azure/virtual-network-manager/)
-- [Azure Verified Modules (AVM) Standards](https://azure.github.io/Azure-Verified-Modules/)
+- [Azure Network Manager docs - ARM schema](https://learn.microsoft.com/azure/templates/microsoft.network/networkmanagers)
+- [AVM Standards & Guidelines](https://azure.github.io/Azure-Verified-Modules/)
+- [Parameter Types: `lockType`, `diagnosticSettingFullType`, `roleAssignmentType`](https://github.com/Azure/avm-helpers)
+
+---
