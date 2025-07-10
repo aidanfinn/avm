@@ -212,10 +212,7 @@ module networkGroupModules 'networkGroup/main.bicep' = [for (group, i) in (netwo
   name: '${take(name, 37)}-networkGroup-${i}'
   params: {
     networkManagerName: networkManager.name
-    name: group.name
-    description: group.?description ?? ''
-    memberType: group.memberType ?? 'Static'
-    staticMemberResourceIds: group.?staticMemberResourceIds ?? []
+    networkGroup: group
   }
 }]
 
