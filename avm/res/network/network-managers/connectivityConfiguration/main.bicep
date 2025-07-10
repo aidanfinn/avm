@@ -11,6 +11,7 @@ metadata description = 'Deploys one or more Connectivity Configurations for Azur
 @description('The name of the parent Network Manager resource.')
 param networkManagerName string
 
+import { connectivityConfigurationType } from '../network-managers-types.bicep'
 @description('Array of connectivity configurations to deploy.')
 param connectivityConfiguration connectivityConfigurationType
 
@@ -40,28 +41,3 @@ output id string = connectivityConfigurationModule.id
 // =============== //
 //   Definitions   //
 // =============== //
-
-@sys.description('Defines the structure of a connectivity configuration.')
-type connectivityConfigurationType = {
-  @sys.description('The name of the connectivity configuration.')
-  @minLength(1)
-  name: string
-
-  @sys.description('The description of the connectivity configuration.')
-  description: string
-
-  @sys.description('The connectivity topology (e.g., HubAndSpoke, Mesh).')
-  connectivityTopology: 'HubAndSpoke' | 'Mesh'
-
-  @sys.description('An array of hub resource IDs.')
-  hubs: array
-
-  @sys.description('Indicates whether the configuration is global.')
-  isGlobal: 'bool | string'
-
-  @sys.description('Indicates whether to delete existing peering configurations when applying this connectivity configuration.')
-  deleteExistingPeering: 'bool | string'
-
-  @sys.description('An array of group resource IDs to which the configuration applies.')
-  appliesToGroups: array
-}

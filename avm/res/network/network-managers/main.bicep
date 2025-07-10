@@ -52,15 +52,19 @@ import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.5
 @sys.description('Optional. Array of role assignments to create.')
 param roleAssignments roleAssignmentType[]?
 
+import { ipamPoolType } from './network-managers-types.bicep'
 @sys.description('Optional. List of IPAM pools to create under the Network Manager.')
 param ipamPools ipamPoolType[] = []
 
+import { networkGroupType } from './network-managers-types.bicep'
 @sys.description('Optional. List of network groups to create under the Network Manager.')
 param networkGroups networkGroupType[] = []
 
+import { connectivityConfigurationType } from './network-managers-types.bicep'
 @sys.description('An array of connectivity configurations to deploy.')
 param connectivityConfigurations connectivityConfigurationType[] = []
 
+import { routingConfigurationType } from './network-managers-types.bicep'
 @sys.description('An array of routing configurations to deploy under the Network Manager.')
 param routingConfigurations routingConfigurationType[] = []
 
@@ -279,94 +283,3 @@ output routingConfigurations array = [
 // =============== //
 //   Definitions   //
 // =============== //
-
-@sys.description('Defines the structure for an IPAM pool to be deployed under the Azure Network Manager.')
-type ipamPoolType = {
-  @sys.description('The name of the IPAM pool. Must be unique within the Network Manager. Must start with a letter or number and may contain letters, numbers, underscores (_), periods (.), and hyphens (-). The name must end with a letter, number, or underscore. Max length: 64.')
-  name: string
-
-  @sys.description('Optional. The Azure region where the IPAM pool will be created. Defaults to the resource group location if not specified.')
-  location: string ?
-
-  @sys.description('An array of CIDR address prefixes to assign to the IPAM pool. Example: ["10.0.0.0/16", "10.1.0.0/16"].')
-  addressPrefixes: array
-
-  @sys.description('Optional. A description for the IPAM pool, which can provide additional context for the resource.')
-  description: string ?
-
-  @sys.description('Optional. A friendly display name for the IPAM pool to use in the Azure Portal.')
-  displayName: string ?
-
-  @sys.description('Optional. The name of the parent IPAM pool, if creating a nested pool hierarchy.')
-  parentPoolName: string ?
-
-  @sys.description('Optional. A dictionary of resource tags to apply to the IPAM pool. Example: { "env": "prod", "costCenter": "1234" }')
-  tags: object ?
-
-  @sys.description('Optional. The provisioning state of the IPAM pool. This is generally managed by Azure and should not be set manually.')
-  provisioningState: string ?
-}
-
-@sys.description('Defines the structure of a network group used with Azure Virtual Network Manager.')
-type networkGroupType = {
-  @sys.description('The name of the network group.')
-  name: string
-
-  @sys.description('The region where the network group is deployed. Must match the region of the Network Manager.')
-  location: string
-
-  @sys.description('A description of the network group.')
-  description: string?
-
-  @sys.description('The type of the group member.')
-  memberType: 'Static' | 'Dynamic'
-
-  @sys.description('The static list of member resources for the network group.')
-  staticMemberResourceIds: networkGroupStaticMemberResourceType[]?
-}
-
-@sys.description('Defines a static member resource of a network group.')
-type networkGroupStaticMemberResourceType = {
-  @sys.description('The resource ID of the static member to be added to the network group.')
-  resourceId: string
-}
-
-@sys.description('Defines the structure of a connectivity configuration.')
-type connectivityConfigurationType = {
-  @sys.description('The name of the connectivity configuration.')
-  @minLength(1)
-  name: string
-
-  @sys.description('The description of the connectivity configuration.')
-  description: string
-
-  @sys.description('The connectivity topology (e.g., HubAndSpoke, Mesh).')
-  connectivityTopology: 'HubAndSpoke' | 'Mesh'
-
-  @sys.description('An array of hub resource IDs.')
-  hubs: array
-
-  @sys.description('Indicates whether the configuration is global.')
-  isGlobal: 'bool | string'
-
-  @sys.description('Indicates whether to delete existing peering configurations when applying this connectivity configuration.')
-  deleteExistingPeering: 'bool | string'
-
-  @sys.description('An array of group resource IDs to which the configuration applies.')
-  appliesToGroups: array
-}
-
-@sys.description('Defines the structure of a routing configuration.')
-type routingConfigurationType = {
-  @sys.description('The name of the routing configuration.')
-  name: string
-
-  @sys.description('The description of the routing configuration.')
-  description: string?
-
-  @sys.description('The list of applicable network groups.')
-  appliesToGroups: array
-
-  @sys.description('The associated routing policy ID, if applicable.')
-  routingPolicyId: string?
-}
