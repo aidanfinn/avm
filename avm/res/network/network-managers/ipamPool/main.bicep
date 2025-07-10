@@ -1,8 +1,8 @@
 // Copyright (c) Cloud Mechanix
 // Licensed under the MIT License.
 
-metadata name = 'Network Manager IPAM Pools'
-metadata description = 'Deploys one or more IPAM Pools for Azure Network Manager.'
+metadata name = 'Network Manager IPAM Pool'
+metadata description = 'Deploys an IPAM Pool for Azure Network Manager.'
 
 // ============= //
 // Parameters    //
@@ -23,7 +23,7 @@ param ipamPool ipamPoolType
 // ================//
 
 resource ipamPoolRes 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
-  name: '${networkManagerName}/${ipamPool.name}-ipalmPool'
+  name: '${networkManagerName}/${ipamPool.name}-ipamPool'
   location: ipamPool.?location ?? location
   tags: ipamPool.?tags ?? {}
   properties: {
@@ -40,7 +40,7 @@ resource ipamPoolRes 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = 
 
 output id string = ipamPoolRes.id
 output name string = ipamPoolRes.name
-output addressPrefixes array = ipamPoolRes.properties.addressPrefixes
+output addressPrefixes array = ipamPool.addressPrefixes
 
 // =============== //
 //   Definitions   //

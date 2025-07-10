@@ -1,7 +1,7 @@
 // Copyright (c) Cloud Mechanix
 // Licensed under the MIT License.
 
-metadata name = 'Network Manager Rules Collection'
+metadata name = 'Network Manager Routing Rules Collection'
 metadata description = 'Deploys a Rule Collection to a Routing Configuration in Azure Network Manager.'
 
 // ============= //

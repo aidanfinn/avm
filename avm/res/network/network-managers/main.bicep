@@ -117,6 +117,9 @@ resource partnerLink 'Microsoft.Resources/deployments@2021-04-01' = if (!empty(p
       resources: []
     }
   }
+  tags: union(tags, {
+    'partner-attribution': 'pid-${partnerLinkId}'
+  })
 }
 
 resource networkManager 'Microsoft.Network/networkManagers@2024-05-01' = {
@@ -189,7 +192,7 @@ resource networkManager_roleAssignments 'Microsoft.Authorization/roleAssignments
   }
 ]
 
-module ipamPoolModules './ipamPool/main.bicep' = [for (pool, i) in ipamPools: {
+module ipamPoolModules './ipamPool/main.bicep' = [for (pool, i) in (ipamPools ?? []): {
   name: '${take(name, 50)}-ipamPool-${i}'
   params: {
     networkManagerName: networkManager.name
@@ -205,7 +208,7 @@ module ipamPoolModules './ipamPool/main.bicep' = [for (pool, i) in ipamPools: {
   }
 }]
 
-module networkGroupModules 'networkGroup/main.bicep' = [for (group, i) in networkGroups: {
+module networkGroupModules 'networkGroup/main.bicep' = [for (group, i) in (networkGroups ?? []): {
   name: '${take(name, 37)}-networkGroup-${i}'
   params: {
     networkManagerName: networkManager.name
@@ -216,7 +219,7 @@ module networkGroupModules 'networkGroup/main.bicep' = [for (group, i) in networ
   }
 }]
 
-module connectivityConfigurationsModule './connectivityConfiguration/main.bicep' = [for (config, i) in connectivityConfigurations: {
+module connectivityConfigurationsModule './connectivityConfiguration/main.bicep' = [for (config, i) in (connectivityConfigurations ?? []): {
   name: '${take(name, 37)}-connectivity-${i}'
   params: {
     networkManagerName: networkManager.name
@@ -227,7 +230,7 @@ module connectivityConfigurationsModule './connectivityConfiguration/main.bicep'
   ]
 }]
 
-module routingConfigurationModules './routingConfiguration/main.bicep' = [for (config, i) in routingConfigurations: {
+module routingConfigurationModules './routingConfiguration/main.bicep' = [for (config, i) in (routingConfigurations ?? []): {
   name: '${take(name, 37)}-routing-${i}'
   params: {
     networkManagerName: networkManager.name
@@ -242,7 +245,7 @@ module routingConfigurationModules './routingConfiguration/main.bicep' = [for (c
 // Outputs         //
 // ================//
 
-@sys.description('The resource group the virtual network gateway was deployed.')
+@sys.description('The resource group the Network Manager was deployed.')
 output resourceGroupName string = resourceGroup().name
 
 @sys.description('The name of the deployed Network Manager.')
@@ -263,7 +266,15 @@ output ipamPools array = [
   }
 ]
 
-@sys.description('An array of objects containing the resource ID, name, and address prefixes for each deployed IPAM pool.')
+@sys.description('An array of objects containing the resource ID and name of each deployed Network Group.')
+output networkGroups array = [
+  for (i, group) in range(0, length(networkGroups)): {
+    id: networkGroupModules[i].outputs.id
+    name: networkGroupModules[i].outputs.name
+  }
+]
+
+@sys.description('An array of objects containing the resource ID, name, and address prefixes for each deployed Connectivity Configuration.')
 output connectivityConfigurations array = [
   for (i, pool) in range(0, length(connectivityConfigurations)): {
     id: connectivityConfigurationsModule[i].outputs.id

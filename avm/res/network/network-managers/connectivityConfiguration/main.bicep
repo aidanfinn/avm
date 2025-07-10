@@ -1,8 +1,8 @@
 // Copyright (c) Cloud Mechanix
 // Licensed under the MIT License.
 
-metadata name = 'Network Manager Connectivity Configurations'
-metadata description = 'Deploys one or more Connectivity Configurations for Azure Network Manager.'
+metadata name = 'Network Manager Connectivity Configuration'
+metadata description = 'Deploys a Connectivity Configuration in Azure Network Manager.'
 
 // ============= //
 // Parameters    //
@@ -12,7 +12,7 @@ metadata description = 'Deploys one or more Connectivity Configurations for Azur
 param networkManagerName string
 
 import { connectivityConfigurationType } from '../network-managers-types.bicep'
-@description('Array of connectivity configurations to deploy.')
+@description('A Connectivity Configuration to deploy.')
 param connectivityConfiguration connectivityConfigurationType
 
 // ================//

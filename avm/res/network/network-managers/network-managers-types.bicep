@@ -2,6 +2,9 @@
 @export()
 @sys.description('Defines the structure for an IPAM pool to be deployed under the Azure Network Manager.')
 type ipamPoolType = {
+
+  @minLength(1)
+  @maxLength(64)
   @sys.description('The name of the IPAM pool. Must be unique within the Network Manager. Must start with a letter or number and may contain letters, numbers, underscores (_), periods (.), and hyphens (-). The name must end with a letter, number, or underscore. Max length: 64.')
   name: string
 
@@ -14,6 +17,8 @@ type ipamPoolType = {
   @sys.description('Optional. A description for the IPAM pool, which can provide additional context for the resource.')
   description: string ?
 
+  @minLength(1)
+  @maxLength(64)
   @sys.description('Optional. A friendly display name for the IPAM pool to use in the Azure Portal.')
   displayName: string ?
 
@@ -30,6 +35,8 @@ type ipamPoolType = {
 @export()
 @sys.description('Defines the structure of a network group used with Azure Virtual Network Manager.')
 type networkGroupType = {
+  @minLength(1)
+  @maxLength(64)
   @sys.description('The name of the network group.')
   name: string
 
@@ -70,10 +77,10 @@ type connectivityConfigurationType = {
   hubs: array
 
   @sys.description('Indicates whether the configuration is global.')
-  isGlobal: 'bool | string'
+  isGlobal: 'true' | 'false'
 
   @sys.description('Indicates whether to delete existing peering configurations when applying this connectivity configuration.')
-  deleteExistingPeering: 'bool | string'
+  deleteExistingPeering: 'true' | 'false'
 
   @sys.description('An array of group resource IDs to which the configuration applies.')
   appliesToGroups: array
@@ -82,6 +89,8 @@ type connectivityConfigurationType = {
 @export()
 @sys.description('Defines the structure of a routing configuration.')
 type routingConfigurationType = {
+  @minLength(1)
+  @maxLength(64)
   @sys.description('The name of the routing configuration.')
   name: string
 
@@ -95,6 +104,8 @@ type routingConfigurationType = {
 @export()
 @sys.description('Defines the Rules Collections of a Routing Configuration')
 type routingConfigurationRuleCollectionType = {
+  @minLength(1)
+  @maxLength(64)
   @sys.description('The name of the rule collection.')
   name: string
 
@@ -130,6 +141,8 @@ type routingConfigurationRulesCollectionPeeringRoutePropagationRulesType = {
 @export()
 @sys.description('Defines the structure of a rule type.')
 type routingConfigurationRuleType = {
+  @minLength(1)
+  @maxLength(64)
   @sys.description('The name of the rule.')
   name: string
 
@@ -137,20 +150,17 @@ type routingConfigurationRuleType = {
   description: string?
 
   @sys.description('The list of network groups to which this rule applies.')
-  destination: routingConfigurationRuleDestinationType?
+  destination: addressPrefixType?
 
   @sys.description('The list of next hop configurations for the rule.')
   nextHop: routingConfigurationNextHopType?
 }
 
 @export()
-@sys.description('Defines the structure of a rule destination.')
-type routingConfigurationRuleDestinationType = {
-  @sys.description('The type of the destination address.')
-  destinationAddress: string
-
-  @sys.description('The type of the destination address prefix or service tag. Defaults to "AddressPrefix".')
-  type: 'AddressPrefix' | 'ServiceTag'
+@sys.description('Defines an address prefix and its type.')
+type addressPrefixType = {
+  addressPrefix: string
+  addressPrefixType: 'IPPrefix' | 'NetworkGroup' | 'ServiceTag'
 }
 
 @export()
@@ -165,10 +175,12 @@ type routingConfigurationNextHopType = {
 @export()
 @sys.description('Defines the structure of a Security Admin Configuration.')
 type securityAdminConfigurationType = {
+  @minLength(1)
+  @maxLength(64)
   @sys.description('Mandatory. The name of the Security Admin Configuration.')
   name: string
 
-  @sys.description('Optional. The resource ID of the Security Admin Configuration.')
+  @sys.description('Optional. A description of the Security Admin Configuration.')
   description: string?
 
   @sys.description('Optional. Enum list of network intent policy based services to apply: All | AllowRulesOnly | None. Default = None.')
@@ -183,6 +195,8 @@ type securityAdminConfigurationType = {
 @export()
 @sys.description('Defines the Rules Collections of a Security Admin Configuration.')
 type securityAdminConfigurationRulesCollectionsType = {
+  @minLength(1)
+  @maxLength(64)
   @sys.description('Mandatory. The name of the rule collection.')
   name: string
 
@@ -206,11 +220,10 @@ type securityAdminConfigurationAppliesToGroupsType = {
 @export()
 @sys.description('Defines the structure of a rule type for Security Admin Configuration.')
 type securityAdminConfigurationRuleType = {
+  @minLength(1)
+  @maxLength(64)
   @sys.description('Mandatory. The name of the rule.')
   name: string 
-
-  @sys.description('Optional. The description of the rule. Custom or Default. Default = Default.')
-  kind: 'Custom' | 'Default'?
 
   @sys.description('Optional. The properties of the rule.')
   properties: securityAdminConfigurationRulePropertiesType
@@ -230,7 +243,7 @@ type securityAdminConfigurationRulePropertiesType = {
   destinationPortRanges: string[]?
 
   @sys.description('Optional. The destination address prefixes. CIDR or destination IP ranges.')
-  destinations: securityAdminConfigurationRulePropertiesAddressPrefxesType[]?
+  destinations: addressPrefixType[]?
 
   @sys.description('Mandatory. Indicates if the direction of traffic that is managed. Inbound | Outbound.')
   direction: 'Inbound' | 'Outbound'
@@ -245,15 +258,6 @@ type securityAdminConfigurationRulePropertiesType = {
   sourcePortRanges: string[]?
 
   @sys.description('Optional. The source address prefixes. CIDR or destination IP ranges.')
-  sources: securityAdminConfigurationRulePropertiesAddressPrefxesType[]?
+  sources: addressPrefixType[]?
 }
 
-@export()
-@sys.description('Defines the The destination address prefixes. CIDR or destination IP ranges..')
-type securityAdminConfigurationRulePropertiesAddressPrefxesType = {
-  @sys.description('Mandatory. Address prefix.')
-  addressPrefix: 'string'
-
-  @sys.description('Mandatory. The type of the address prefix. IPPrefix | NetworkGroup | ServiceTag.')
-  addressPrefixType: 'IPPrefix' | 'NetworkGroup' | 'ServiceTag'
-}
