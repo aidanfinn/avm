@@ -1,0 +1,2390 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.36.1.42791",
+      "templateHash": "10379349431778461757"
+    },
+    "name": "Network Manager",
+    "description": "Deploys an Azure Network Manager resource with specified scope and optional configurations."
+  },
+  "definitions": {
+    "_1.addressPrefixType": {
+      "type": "object",
+      "properties": {
+        "addressPrefix": {
+          "type": "string"
+        },
+        "addressPrefixType": {
+          "type": "string",
+          "allowedValues": [
+            "IPPrefix",
+            "NetworkGroup",
+            "ServiceTag"
+          ]
+        }
+      },
+      "metadata": {
+        "description": "Defines an address prefix and its type.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "_1.connectivityConfigurationCapabilitiesType": {
+      "type": "object",
+      "properties": {
+        "connectedGroupAddressOverlap": {
+          "type": "string",
+          "allowedValues": [
+            "Allowed",
+            "Disallowed"
+          ],
+          "metadata": {
+            "description": "Mandatory. Behavior to handle overlapped IP address space among members of the connected group of the connectivity configuration. Allowed | Disallowed"
+          }
+        },
+        "connectedGroupPrivateEndpointsScale": {
+          "type": "string",
+          "allowedValues": [
+            "HighScale",
+            "Standard"
+          ],
+          "metadata": {
+            "description": "Mandatory. Option indicating the scale of private endpoints allowed in the connected group of the connectivity configuration. Allowed | Disallowed"
+          }
+        },
+        "peeringEnforcement": {
+          "type": "string",
+          "allowedValues": [
+            "Enforced",
+            "Unenforced"
+          ],
+          "metadata": {
+            "description": "Mandatory. Option indicating enforcement of peerings created by the connectivity configuration. Allowed | Disallowed"
+          }
+        }
+      },
+      "metadata": {
+        "description": "Defines the capabilities of a connectivity configuration in Azure Network Manager.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "_1.connectivityConfigurationHubType": {
+      "type": "object",
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "metadata": {
+            "description": "Resource Id."
+          }
+        },
+        "resourceType": {
+          "type": "string",
+          "metadata": {
+            "description": "Resource Type."
+          }
+        }
+      },
+      "metadata": {
+        "description": "A hub item.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "_1.networkGroupStaticMemberResourceType": {
+      "type": "object",
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "metadata": {
+            "description": "The resource ID of the static member to be added to the network group."
+          }
+        }
+      },
+      "metadata": {
+        "description": "Defines a static member resource of a network group.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "_1.routingConfigurationNextHopType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "allowedValues": [
+            "Internet",
+            "NoNextHop",
+            "VirtualAppliance",
+            "VirtualNetworkGateway",
+            "VnetLocal"
+          ],
+          "metadata": {
+            "description": "The type of the next hop."
+          }
+        },
+        "nextHopAddress": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "The IP address of the next hop if the type is VirtualAppliance."
+          }
+        }
+      },
+      "metadata": {
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "_1.routingConfigurationRuleCollectionType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "metadata": {
+            "description": "The name of the rule collection."
+          }
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "The description of the rule collection."
+          }
+        },
+        "appliesTo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_1.routingConfigurationRulesCollectionAppliesToType"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "The list of network groups to which this rule collection applies."
+          }
+        },
+        "disableBgpRoutePropagation": {
+          "type": "string",
+          "allowedValues": [
+            "False",
+            "True"
+          ],
+          "metadata": {
+            "description": "Indicates whether BGP route propagation is disabled."
+          }
+        },
+        "peeringRoutePropagationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_1.routingConfigurationRulesCollectionPeeringRoutePropagationRulesType"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "The list of peering route propagation rules."
+          }
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_1.routingConfigurationRuleType"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "Defines the structure of a rule type."
+          }
+        }
+      },
+      "metadata": {
+        "description": "Defines the Rules Collections of a Routing Configuration",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "_1.routingConfigurationRulesCollectionAppliesToType": {
+      "type": "object",
+      "properties": {
+        "networkGroupId": {
+          "type": "string",
+          "metadata": {
+            "description": "The ID of the network group to which this rule collection applies."
+          }
+        }
+      },
+      "metadata": {
+        "description": "Defines the structure of a rules collection applies to type.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "_1.routingConfigurationRulesCollectionPeeringRoutePropagationRulesType": {
+      "type": "object",
+      "properties": {
+        "propagationOption": {
+          "type": "string",
+          "allowedValues": [
+            "Default",
+            "DisableAllPeeringPrefixes"
+          ]
+        }
+      },
+      "metadata": {
+        "description": "Defines the structure of a peering route propagation rule.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "_1.routingConfigurationRuleType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "metadata": {
+            "description": "The name of the rule."
+          }
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "The description of the rule."
+          }
+        },
+        "destination": {
+          "$ref": "#/definitions/_1.addressPrefixType",
+          "nullable": true,
+          "metadata": {
+            "description": "The list of network groups to which this rule applies."
+          }
+        },
+        "nextHop": {
+          "$ref": "#/definitions/_1.routingConfigurationNextHopType",
+          "nullable": true,
+          "metadata": {
+            "description": "The list of next hop configurations for the rule."
+          }
+        }
+      },
+      "metadata": {
+        "description": "Defines the structure of a rule type.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "connectivityConfigurationType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+            "description": "The name of the connectivity configuration."
+          }
+        },
+        "appliesToGroups": {
+          "type": "array",
+          "metadata": {
+            "description": "An array of group resource IDs to which the configuration applies."
+          }
+        },
+        "connectivityCapabilities": {
+          "$ref": "#/definitions/_1.connectivityConfigurationCapabilitiesType",
+          "nullable": true,
+          "metadata": {
+            "description": "Defines the capabilities of a connectivity configuration in Azure Network Manager."
+          }
+        },
+        "connectivityTopology": {
+          "type": "string",
+          "allowedValues": [
+            "HubAndSpoke",
+            "Mesh"
+          ],
+          "metadata": {
+            "description": "The connectivity topology (e.g., HubAndSpoke, Mesh)."
+          }
+        },
+        "deleteExistingPeering": {
+          "type": "string",
+          "allowedValues": [
+            "false",
+            "true"
+          ],
+          "metadata": {
+            "description": "Indicates whether to delete existing peering configurations when applying this connectivity configuration."
+          }
+        },
+        "description": {
+          "type": "string",
+          "metadata": {
+            "description": "The description of the connectivity configuration."
+          }
+        },
+        "hubs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_1.connectivityConfigurationHubType"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "An array of hub resource IDs."
+          }
+        },
+        "isGlobal": {
+          "type": "string",
+          "allowedValues": [
+            "False",
+            "True"
+          ],
+          "metadata": {
+            "description": "Flag if global mesh is supported."
+          }
+        }
+      },
+      "metadata": {
+        "description": "Defines the structure of a connectivity configuration.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "diagnosticSettingFullType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The name of the diagnostic setting."
+          }
+        },
+        "logCategoriesAndGroups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "nullable": true,
+                "metadata": {
+                  "description": "Optional. Name of a Diagnostic Log category for a resource type this setting is applied to. Set the specific logs to collect here."
+                }
+              },
+              "categoryGroup": {
+                "type": "string",
+                "nullable": true,
+                "metadata": {
+                  "description": "Optional. Name of a Diagnostic Log category group for a resource type this setting is applied to. Set to `allLogs` to collect all logs."
+                }
+              },
+              "enabled": {
+                "type": "bool",
+                "nullable": true,
+                "metadata": {
+                  "description": "Optional. Enable or disable the category explicitly. Default is `true`."
+                }
+              }
+            }
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The name of logs that will be streamed. \"allLogs\" includes all possible logs for the resource. Set to `[]` to disable log collection."
+          }
+        },
+        "metricCategories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "metadata": {
+                  "description": "Required. Name of a Diagnostic Metric category for a resource type this setting is applied to. Set to `AllMetrics` to collect all metrics."
+                }
+              },
+              "enabled": {
+                "type": "bool",
+                "nullable": true,
+                "metadata": {
+                  "description": "Optional. Enable or disable the category explicitly. Default is `true`."
+                }
+              }
+            }
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The name of metrics that will be streamed. \"allMetrics\" includes all possible metrics for the resource. Set to `[]` to disable metric collection."
+          }
+        },
+        "logAnalyticsDestinationType": {
+          "type": "string",
+          "allowedValues": [
+            "AzureDiagnostics",
+            "Dedicated"
+          ],
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. A string indicating whether the export to Log Analytics should use the default destination type, i.e. AzureDiagnostics, or use a destination type."
+          }
+        },
+        "workspaceResourceId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Resource ID of the diagnostic log analytics workspace. For security reasons, it is recommended to set diagnostic settings to send data to either storage account, log analytics workspace or event hub."
+          }
+        },
+        "storageAccountResourceId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Resource ID of the diagnostic storage account. For security reasons, it is recommended to set diagnostic settings to send data to either storage account, log analytics workspace or event hub."
+          }
+        },
+        "eventHubAuthorizationRuleResourceId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Resource ID of the diagnostic event hub authorization rule for the Event Hubs namespace in which the event hub should be created or streamed to."
+          }
+        },
+        "eventHubName": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Name of the diagnostic event hub within the namespace to which logs are streamed. Without this, an event hub is created for each log category. For security reasons, it is recommended to set diagnostic settings to send data to either storage account, log analytics workspace or event hub."
+          }
+        },
+        "marketplacePartnerResourceId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The full ARM resource ID of the Marketplace resource to which you would like to send Diagnostic Logs."
+          }
+        }
+      },
+      "metadata": {
+        "description": "An AVM-aligned type for a diagnostic setting. To be used if both logs & metrics are supported by the resource provider.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.5.1"
+        }
+      }
+    },
+    "ipamPoolType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "metadata": {
+            "description": "The name of the IPAM pool. Must be unique within the Network Manager. Must start with a letter or number and may contain letters, numbers, underscores (_), periods (.), and hyphens (-). The name must end with a letter, number, or underscore. Max length: 64."
+          }
+        },
+        "location": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The Azure region where the IPAM pool will be created. Defaults to the resource group location if not specified."
+          }
+        },
+        "addressPrefixes": {
+          "type": "array",
+          "metadata": {
+            "description": "An array of CIDR address prefixes to assign to the IPAM pool. Example: [\"10.0.0.0/16\", \"10.1.0.0/16\"]."
+          }
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. A description for the IPAM pool, which can provide additional context for the resource."
+          }
+        },
+        "displayName": {
+          "type": "string",
+          "nullable": true,
+          "minLength": 1,
+          "maxLength": 64,
+          "metadata": {
+            "description": "Optional. A friendly display name for the IPAM pool to use in the Azure Portal."
+          }
+        },
+        "parentPoolName": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The name of the parent IPAM pool, if creating a nested pool hierarchy."
+          }
+        },
+        "tags": {
+          "type": "object",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. A dictionary of resource tags to apply to the IPAM pool. Example: { \"env\": \"prod\", \"costCenter\": \"1234\" }"
+          }
+        }
+      },
+      "metadata": {
+        "description": "Defines the structure for an IPAM pool to be deployed under the Azure Network Manager.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "lockType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Specify the name of lock."
+          }
+        },
+        "kind": {
+          "type": "string",
+          "allowedValues": [
+            "CanNotDelete",
+            "None",
+            "ReadOnly"
+          ],
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Specify the type of lock."
+          }
+        }
+      },
+      "metadata": {
+        "description": "An AVM-aligned type for a lock.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.5.1"
+        }
+      }
+    },
+    "networkGroupType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "metadata": {
+            "description": "The name of the network group."
+          }
+        },
+        "location": {
+          "type": "string",
+          "metadata": {
+            "description": "The region where the network group is deployed. Must match the region of the Network Manager."
+          }
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "A description of the network group."
+          }
+        },
+        "memberType": {
+          "type": "string",
+          "allowedValues": [
+            "Dynamic",
+            "Static"
+          ],
+          "metadata": {
+            "description": "The type of the group member."
+          }
+        },
+        "staticMemberResourceIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_1.networkGroupStaticMemberResourceType"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "The static list of member resources for the network group."
+          }
+        }
+      },
+      "metadata": {
+        "description": "Defines the structure of a network group used with Azure Virtual Network Manager.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    },
+    "roleAssignmentType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The name (as GUID) of the role assignment. If not provided, a GUID will be generated."
+          }
+        },
+        "roleDefinitionIdOrName": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The role to assign. You can provide either the display name of the role definition, the role definition GUID, or its fully qualified ID in the following format: '/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11'."
+          }
+        },
+        "principalId": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The principal ID of the principal (user/group/identity) to assign the role to."
+          }
+        },
+        "principalType": {
+          "type": "string",
+          "allowedValues": [
+            "Device",
+            "ForeignGroup",
+            "Group",
+            "ServicePrincipal",
+            "User"
+          ],
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The principal type of the assigned principal ID."
+          }
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The description of the role assignment."
+          }
+        },
+        "condition": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The conditions on the role assignment. This limits the resources it can be assigned to. e.g.: @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:ContainerName] StringEqualsIgnoreCase \"foo_storage_container\"."
+          }
+        },
+        "conditionVersion": {
+          "type": "string",
+          "allowedValues": [
+            "2.0"
+          ],
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Version of the condition."
+          }
+        },
+        "delegatedManagedIdentityResourceId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The Resource Id of the delegated managed identity resource."
+          }
+        }
+      },
+      "metadata": {
+        "description": "An AVM-aligned type for a role assignment.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.5.1"
+        }
+      }
+    },
+    "routingConfigurationType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "metadata": {
+            "description": "The name of the routing configuration."
+          }
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "The description of the routing configuration."
+          }
+        },
+        "ruleCollections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_1.routingConfigurationRuleCollectionType"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "The list of applicable network groups."
+          }
+        }
+      },
+      "metadata": {
+        "description": "Defines the structure of a routing configuration.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "types/network-managers-types.bicep"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "partnerLinkId": {
+      "type": "string",
+      "defaultValue": "cca1ef9c-c4b1-4c3d-8973-7e5341ab6792",
+      "metadata": {
+        "description": "Optional. Customer Usage Attribution (CUA) ID for partner tracking. Defaults to Cloud Mechanix."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Optional. Location for all resources."
+      }
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "metadata": {
+        "description": "Mandatory. The name of the Azure Network Manager resource. Must be 1-80 characters, using only a-z, A-Z, 0-9, _, ., or -. Regex: ^[a-zA-Z0-9_.-]+$"
+      }
+    },
+    "description": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional. A description of the Azure Virtual Network Manager resource."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Optional tags to apply to the Network Manager resource. Example: { \"environment\": \"production\", \"project\": \"networking\" }"
+      }
+    },
+    "networkManagerScopes": {
+      "type": "object",
+      "defaultValue": {
+        "managementGroups": [
+          "[format('/providers/Microsoft.Management/managementGroups/{0}', tenant().tenantId)]"
+        ],
+        "subscriptions": []
+      },
+      "metadata": {
+        "description": "Optional. The scopes for the Network Manager. Default is the root management group of the tenant. You can specify management groups or subscriptions."
+      }
+    },
+    "networkManagerScopeAccesses": {
+      "type": "array",
+      "defaultValue": [
+        "Connectivity",
+        "SecurityAdmin",
+        "Routing"
+      ],
+      "metadata": {
+        "description": "Optional. The list of network manager features to apply to the Network Manager. Default is Connectivity, SecurityAdmin, and Routing."
+      }
+    },
+    "lock": {
+      "$ref": "#/definitions/lockType",
+      "nullable": true,
+      "metadata": {
+        "description": "Optional. The lock settings of the service."
+      }
+    },
+    "diagnosticSettings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/diagnosticSettingFullType"
+      },
+      "nullable": true,
+      "metadata": {
+        "description": "Optional. The diagnostic settings of the service."
+      }
+    },
+    "roleAssignments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/roleAssignmentType"
+      },
+      "nullable": true,
+      "metadata": {
+        "description": "Optional. Array of role assignments to create."
+      }
+    },
+    "ipamPools": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ipamPoolType"
+      },
+      "defaultValue": [],
+      "metadata": {
+        "description": "Optional. List of IPAM pools to create under the Network Manager."
+      }
+    },
+    "networkGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/networkGroupType"
+      },
+      "defaultValue": [],
+      "metadata": {
+        "description": "Optional. List of network groups to create under the Network Manager."
+      }
+    },
+    "connectivityConfigurations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/connectivityConfigurationType"
+      },
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of connectivity configurations to deploy."
+      }
+    },
+    "routingConfigurations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/routingConfigurationType"
+      },
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of routing configurations to deploy under the Network Manager."
+      }
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "formattedRoleAssignments",
+        "count": "[length(coalesce(parameters('roleAssignments'), createArray()))]",
+        "input": "[union(coalesce(parameters('roleAssignments'), createArray())[copyIndex('formattedRoleAssignments')], createObject('roleDefinitionId', coalesce(tryGet(variables('builtInRoleNames'), coalesce(parameters('roleAssignments'), createArray())[copyIndex('formattedRoleAssignments')].roleDefinitionIdOrName), if(contains(coalesce(parameters('roleAssignments'), createArray())[copyIndex('formattedRoleAssignments')].roleDefinitionIdOrName, '/providers/Microsoft.Authorization/roleDefinitions/'), coalesce(parameters('roleAssignments'), createArray())[copyIndex('formattedRoleAssignments')].roleDefinitionIdOrName, subscriptionResourceId('Microsoft.Authorization/roleDefinitions', coalesce(parameters('roleAssignments'), createArray())[copyIndex('formattedRoleAssignments')].roleDefinitionIdOrName)))))]"
+      }
+    ],
+    "builtInRoleNames": {
+      "Contributor": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+      "Network Contributor": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+      "Owner": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
+      "Reader": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+      "Role Based Access Control Administrator": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f58310d9-a9f6-439a-9e8d-f62e7b41a168')]",
+      "User Access Administrator": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')]"
+    }
+  },
+  "resources": {
+    "partnerLink": {
+      "condition": "[not(empty(parameters('partnerLinkId')))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "[format('pid-{0}', parameters('partnerLinkId'))]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      },
+      "tags": "[union(parameters('tags'), createObject('partner-attribution', format('pid-{0}', parameters('partnerLinkId'))))]",
+      "metadata": {
+        "description": "Deploys a Customer Usage Attribution (CUA) resource for partner tracking, if a valid CUA ID is provided."
+      }
+    },
+    "networkManager": {
+      "type": "Microsoft.Network/networkManagers",
+      "apiVersion": "2024-05-01",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "tags": "[if(not(empty(parameters('tags'))), parameters('tags'), null())]",
+      "properties": {
+        "description": "[if(not(empty(parameters('description'))), parameters('description'), null())]",
+        "networkManagerScopes": "[parameters('networkManagerScopes')]",
+        "networkManagerScopeAccesses": "[parameters('networkManagerScopeAccesses')]"
+      }
+    },
+    "networkManager_lock": {
+      "condition": "[and(not(empty(coalesce(parameters('lock'), createObject()))), not(equals(tryGet(parameters('lock'), 'kind'), 'None')))]",
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2020-05-01",
+      "scope": "[format('Microsoft.Network/networkManagers/{0}', parameters('name'))]",
+      "name": "[coalesce(tryGet(parameters('lock'), 'name'), format('lock-{0}', parameters('name')))]",
+      "properties": {
+        "level": "[coalesce(tryGet(parameters('lock'), 'kind'), '')]",
+        "notes": "[if(equals(tryGet(parameters('lock'), 'kind'), 'CanNotDelete'), 'Cannot delete resource or child resources.', 'Cannot delete or modify the resource or child resources.')]"
+      },
+      "dependsOn": [
+        "networkManager"
+      ]
+    },
+    "networkManager_diagnosticSettings": {
+      "copy": {
+        "name": "networkManager_diagnosticSettings",
+        "count": "[length(coalesce(parameters('diagnosticSettings'), createArray()))]"
+      },
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2021-05-01-preview",
+      "scope": "[format('Microsoft.Network/networkManagers/{0}', parameters('name'))]",
+      "name": "[coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'name'), format('{0}-diagnosticSettings', parameters('name')))]",
+      "properties": {
+        "copy": [
+          {
+            "name": "metrics",
+            "count": "[length(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'metricCategories'), createArray(createObject('category', 'AllMetrics'))))]",
+            "input": {
+              "category": "[coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'metricCategories'), createArray(createObject('category', 'AllMetrics')))[copyIndex('metrics')].category]",
+              "enabled": "[coalesce(tryGet(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'metricCategories'), createArray(createObject('category', 'AllMetrics')))[copyIndex('metrics')], 'enabled'), true())]",
+              "timeGrain": null
+            }
+          },
+          {
+            "name": "logs",
+            "count": "[length(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'logCategoriesAndGroups'), createArray(createObject('categoryGroup', 'allLogs'))))]",
+            "input": {
+              "categoryGroup": "[tryGet(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'logCategoriesAndGroups'), createArray(createObject('categoryGroup', 'allLogs')))[copyIndex('logs')], 'categoryGroup')]",
+              "category": "[tryGet(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'logCategoriesAndGroups'), createArray(createObject('categoryGroup', 'allLogs')))[copyIndex('logs')], 'category')]",
+              "enabled": "[coalesce(tryGet(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'logCategoriesAndGroups'), createArray(createObject('categoryGroup', 'allLogs')))[copyIndex('logs')], 'enabled'), true())]"
+            }
+          }
+        ],
+        "storageAccountId": "[tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'storageAccountResourceId')]",
+        "workspaceId": "[tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'workspaceResourceId')]",
+        "eventHubAuthorizationRuleId": "[tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'eventHubAuthorizationRuleResourceId')]",
+        "eventHubName": "[tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'eventHubName')]",
+        "marketplacePartnerId": "[tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'marketplacePartnerResourceId')]",
+        "logAnalyticsDestinationType": "[tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'logAnalyticsDestinationType')]"
+      },
+      "dependsOn": [
+        "networkManager"
+      ]
+    },
+    "networkManager_roleAssignments": {
+      "copy": {
+        "name": "networkManager_roleAssignments",
+        "count": "[length(coalesce(variables('formattedRoleAssignments'), createArray()))]"
+      },
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[format('Microsoft.Network/networkManagers/{0}', parameters('name'))]",
+      "name": "[coalesce(tryGet(coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()], 'name'), guid(resourceId('Microsoft.Network/networkManagers', parameters('name')), coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()].principalId, coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()].roleDefinitionId))]",
+      "properties": {
+        "roleDefinitionId": "[coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()].roleDefinitionId]",
+        "principalId": "[coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()].principalId]",
+        "description": "[tryGet(coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()], 'description')]",
+        "principalType": "[tryGet(coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()], 'principalType')]",
+        "condition": "[tryGet(coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()], 'condition')]",
+        "conditionVersion": "[if(not(empty(tryGet(coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()], 'condition'))), coalesce(tryGet(coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()], 'conditionVersion'), '2.0'), null())]",
+        "delegatedManagedIdentityResourceId": "[tryGet(coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()], 'delegatedManagedIdentityResourceId')]"
+      },
+      "dependsOn": [
+        "networkManager"
+      ]
+    },
+    "ipamPoolModules": {
+      "copy": {
+        "name": "ipamPoolModules",
+        "count": "[length(coalesce(parameters('ipamPools'), createArray()))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}-ipamPool-{1}', take(parameters('name'), 50), copyIndex())]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "networkManagerName": {
+            "value": "[parameters('name')]"
+          },
+          "location": {
+            "value": "[coalesce(tryGet(coalesce(parameters('ipamPools'), createArray())[copyIndex()], 'location'), parameters('location'))]"
+          },
+          "ipamPool": {
+            "value": {
+              "name": "[coalesce(parameters('ipamPools'), createArray())[copyIndex()].name]",
+              "addressPrefixes": "[coalesce(parameters('ipamPools'), createArray())[copyIndex()].addressPrefixes]",
+              "description": "[coalesce(tryGet(coalesce(parameters('ipamPools'), createArray())[copyIndex()], 'description'), '')]",
+              "displayName": "[coalesce(tryGet(coalesce(parameters('ipamPools'), createArray())[copyIndex()], 'displayName'), coalesce(parameters('ipamPools'), createArray())[copyIndex()].name)]",
+              "parentPoolName": "[coalesce(tryGet(coalesce(parameters('ipamPools'), createArray())[copyIndex()], 'parentPoolName'), '')]",
+              "tags": "[coalesce(tryGet(coalesce(parameters('ipamPools'), createArray())[copyIndex()], 'tags'), createObject())]"
+            }
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.36.1.42791",
+              "templateHash": "17682177680743666732"
+            },
+            "name": "Network Manager IPAM Pool",
+            "description": "Deploys an IPAM Pool for Azure Network Manager."
+          },
+          "definitions": {
+            "ipamPoolType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "metadata": {
+                    "description": "The name of the IPAM pool. Must be unique within the Network Manager. Must start with a letter or number and may contain letters, numbers, underscores (_), periods (.), and hyphens (-). The name must end with a letter, number, or underscore. Max length: 64."
+                  }
+                },
+                "location": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The Azure region where the IPAM pool will be created. Defaults to the resource group location if not specified."
+                  }
+                },
+                "addressPrefixes": {
+                  "type": "array",
+                  "metadata": {
+                    "description": "An array of CIDR address prefixes to assign to the IPAM pool. Example: [\"10.0.0.0/16\", \"10.1.0.0/16\"]."
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. A description for the IPAM pool, which can provide additional context for the resource."
+                  }
+                },
+                "displayName": {
+                  "type": "string",
+                  "nullable": true,
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "metadata": {
+                    "description": "Optional. A friendly display name for the IPAM pool to use in the Azure Portal."
+                  }
+                },
+                "parentPoolName": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The name of the parent IPAM pool, if creating a nested pool hierarchy."
+                  }
+                },
+                "tags": {
+                  "type": "object",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. A dictionary of resource tags to apply to the IPAM pool. Example: { \"env\": \"prod\", \"costCenter\": \"1234\" }"
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Defines the structure for an IPAM pool to be deployed under the Azure Network Manager.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            }
+          },
+          "parameters": {
+            "networkManagerName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the parent Azure Network Manager."
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "The location of the parent resource."
+              }
+            },
+            "ipamPool": {
+              "$ref": "#/definitions/ipamPoolType",
+              "metadata": {
+                "description": "The IPAM pool configuration to deploy."
+              }
+            }
+          },
+          "resources": {
+            "ipamPoolRes": {
+              "type": "Microsoft.Network/networkManagers/ipamPools",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}-ipamPool', parameters('networkManagerName'), parameters('ipamPool').name)]",
+              "location": "[coalesce(tryGet(parameters('ipamPool'), 'location'), parameters('location'))]",
+              "tags": "[coalesce(tryGet(parameters('ipamPool'), 'tags'), createObject())]",
+              "properties": {
+                "addressPrefixes": "[parameters('ipamPool').addressPrefixes]",
+                "description": "[coalesce(tryGet(parameters('ipamPool'), 'description'), '')]",
+                "displayName": "[coalesce(tryGet(parameters('ipamPool'), 'displayName'), parameters('ipamPool').name)]",
+                "parentPoolName": "[coalesce(tryGet(parameters('ipamPool'), 'parentPoolName'), '')]"
+              }
+            }
+          },
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkManagers/ipamPools', split(format('{0}/{1}-ipamPool', parameters('networkManagerName'), parameters('ipamPool').name), '/')[0], split(format('{0}/{1}-ipamPool', parameters('networkManagerName'), parameters('ipamPool').name), '/')[1])]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[format('{0}/{1}-ipamPool', parameters('networkManagerName'), parameters('ipamPool').name)]"
+            },
+            "addressPrefixes": {
+              "type": "array",
+              "value": "[parameters('ipamPool').addressPrefixes]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "networkManager"
+      ]
+    },
+    "networkGroupModules": {
+      "copy": {
+        "name": "networkGroupModules",
+        "count": "[length(coalesce(parameters('networkGroups'), createArray()))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}-networkGroup-{1}', take(parameters('name'), 37), copyIndex())]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "networkManagerName": {
+            "value": "[parameters('name')]"
+          },
+          "networkGroup": {
+            "value": "[coalesce(parameters('networkGroups'), createArray())[copyIndex()]]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.36.1.42791",
+              "templateHash": "17521193209418260722"
+            },
+            "name": "Network Manager Network Groups",
+            "description": "Deploys one or more Network Groups for Azure Network Manager."
+          },
+          "definitions": {
+            "_1.networkGroupStaticMemberResourceType": {
+              "type": "object",
+              "properties": {
+                "resourceId": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "The resource ID of the static member to be added to the network group."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Defines a static member resource of a network group.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            },
+            "networkGroupType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "metadata": {
+                    "description": "The name of the network group."
+                  }
+                },
+                "location": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "The region where the network group is deployed. Must match the region of the Network Manager."
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "A description of the network group."
+                  }
+                },
+                "memberType": {
+                  "type": "string",
+                  "allowedValues": [
+                    "Dynamic",
+                    "Static"
+                  ],
+                  "metadata": {
+                    "description": "The type of the group member."
+                  }
+                },
+                "staticMemberResourceIds": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.networkGroupStaticMemberResourceType"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The static list of member resources for the network group."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Defines the structure of a network group used with Azure Virtual Network Manager.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            }
+          },
+          "parameters": {
+            "networkManagerName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the parent Network Manager resource."
+              }
+            },
+            "networkGroup": {
+              "$ref": "#/definitions/networkGroupType",
+              "metadata": {
+                "description": "The Network Group to deploy."
+              }
+            }
+          },
+          "resources": {
+            "networkGroupModule": {
+              "type": "Microsoft.Network/networkManagers/networkGroups",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('networkManagerName'), parameters('networkGroup').name)]",
+              "properties": {
+                "description": "[coalesce(tryGet(parameters('networkGroup'), 'description'), null())]",
+                "memberType": "[parameters('networkGroup').memberType]"
+              }
+            },
+            "staticMembers": {
+              "copy": {
+                "name": "staticMembers",
+                "count": "[length(coalesce(tryGet(parameters('networkGroup'), 'staticMemberResourceIds'), createArray()))]"
+              },
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('networkManagerName'), parameters('networkGroup').name), '/')[0], split(format('{0}/{1}', parameters('networkManagerName'), parameters('networkGroup').name), '/')[1], format('{0}-member{1}', parameters('networkGroup').name, copyIndex()))]",
+              "properties": {
+                "resourceId": "[coalesce(tryGet(parameters('networkGroup'), 'staticMemberResourceIds'), createArray())[copyIndex()]]"
+              },
+              "dependsOn": [
+                "networkGroupModule"
+              ]
+            }
+          },
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkManagers/networkGroups', split(format('{0}/{1}', parameters('networkManagerName'), parameters('networkGroup').name), '/')[0], split(format('{0}/{1}', parameters('networkManagerName'), parameters('networkGroup').name), '/')[1])]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[format('{0}/{1}', parameters('networkManagerName'), parameters('networkGroup').name)]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "networkManager"
+      ]
+    },
+    "connectivityConfigurationsModule": {
+      "copy": {
+        "name": "connectivityConfigurationsModule",
+        "count": "[length(coalesce(parameters('connectivityConfigurations'), createArray()))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}-connectivity-{1}', take(parameters('name'), 37), copyIndex())]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "networkManagerName": {
+            "value": "[parameters('name')]"
+          },
+          "connectivityConfiguration": {
+            "value": "[coalesce(parameters('connectivityConfigurations'), createArray())[copyIndex()]]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.36.1.42791",
+              "templateHash": "224288614618516910"
+            },
+            "name": "Network Manager Connectivity Configuration",
+            "description": "Deploys a Connectivity Configuration in Azure Network Manager."
+          },
+          "definitions": {
+            "_1.connectivityConfigurationCapabilitiesType": {
+              "type": "object",
+              "properties": {
+                "connectedGroupAddressOverlap": {
+                  "type": "string",
+                  "allowedValues": [
+                    "Allowed",
+                    "Disallowed"
+                  ],
+                  "metadata": {
+                    "description": "Mandatory. Behavior to handle overlapped IP address space among members of the connected group of the connectivity configuration. Allowed | Disallowed"
+                  }
+                },
+                "connectedGroupPrivateEndpointsScale": {
+                  "type": "string",
+                  "allowedValues": [
+                    "HighScale",
+                    "Standard"
+                  ],
+                  "metadata": {
+                    "description": "Mandatory. Option indicating the scale of private endpoints allowed in the connected group of the connectivity configuration. Allowed | Disallowed"
+                  }
+                },
+                "peeringEnforcement": {
+                  "type": "string",
+                  "allowedValues": [
+                    "Enforced",
+                    "Unenforced"
+                  ],
+                  "metadata": {
+                    "description": "Mandatory. Option indicating enforcement of peerings created by the connectivity configuration. Allowed | Disallowed"
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Defines the capabilities of a connectivity configuration in Azure Network Manager.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            },
+            "_1.connectivityConfigurationHubType": {
+              "type": "object",
+              "properties": {
+                "resourceId": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Resource Id."
+                  }
+                },
+                "resourceType": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Resource Type."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "A hub item.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            },
+            "connectivityConfigurationType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "metadata": {
+                    "description": "The name of the connectivity configuration."
+                  }
+                },
+                "appliesToGroups": {
+                  "type": "array",
+                  "metadata": {
+                    "description": "An array of group resource IDs to which the configuration applies."
+                  }
+                },
+                "connectivityCapabilities": {
+                  "$ref": "#/definitions/_1.connectivityConfigurationCapabilitiesType",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Defines the capabilities of a connectivity configuration in Azure Network Manager."
+                  }
+                },
+                "connectivityTopology": {
+                  "type": "string",
+                  "allowedValues": [
+                    "HubAndSpoke",
+                    "Mesh"
+                  ],
+                  "metadata": {
+                    "description": "The connectivity topology (e.g., HubAndSpoke, Mesh)."
+                  }
+                },
+                "deleteExistingPeering": {
+                  "type": "string",
+                  "allowedValues": [
+                    "false",
+                    "true"
+                  ],
+                  "metadata": {
+                    "description": "Indicates whether to delete existing peering configurations when applying this connectivity configuration."
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "The description of the connectivity configuration."
+                  }
+                },
+                "hubs": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.connectivityConfigurationHubType"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "An array of hub resource IDs."
+                  }
+                },
+                "isGlobal": {
+                  "type": "string",
+                  "allowedValues": [
+                    "False",
+                    "True"
+                  ],
+                  "metadata": {
+                    "description": "Flag if global mesh is supported."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Defines the structure of a connectivity configuration.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            }
+          },
+          "parameters": {
+            "networkManagerName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the parent Network Manager resource."
+              }
+            },
+            "connectivityConfiguration": {
+              "$ref": "#/definitions/connectivityConfigurationType",
+              "metadata": {
+                "description": "A Connectivity Configuration to deploy."
+              }
+            }
+          },
+          "variables": {
+            "resolvedConnectivityCapabilities": "[if(empty(tryGet(parameters('connectivityConfiguration'), 'connectivityCapabilities')), null(), createObject('connectedGroupAddressOverlap', coalesce(tryGet(parameters('connectivityConfiguration'), 'connectivityCapabilities', 'connectedGroupAddressOverlap'), 'Disallowed'), 'connectedGroupPrivateEndpointsScale', coalesce(tryGet(parameters('connectivityConfiguration'), 'connectivityCapabilities', 'connectedGroupPrivateEndpointsScale'), 'Standard'), 'peeringEnforcement', coalesce(tryGet(parameters('connectivityConfiguration'), 'connectivityCapabilities', 'peeringEnforcement'), 'Enforced')))]"
+          },
+          "resources": {
+            "connectivityConfigurationModule": {
+              "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
+              "apiVersion": "2024-07-01",
+              "name": "[format('{0}/{1}', parameters('networkManagerName'), parameters('connectivityConfiguration').name)]",
+              "properties": "[shallowMerge(createArray(createObject('connectivityTopology', coalesce(parameters('connectivityConfiguration').connectivityTopology, 'HubAndSpoke'), 'deleteExistingPeering', coalesce(parameters('connectivityConfiguration').deleteExistingPeering, false()), 'isGlobal', coalesce(parameters('connectivityConfiguration').isGlobal, false())), if(empty(parameters('connectivityConfiguration').appliesToGroups), createObject(), createObject('appliesToGroups', parameters('connectivityConfiguration').appliesToGroups)), if(empty(variables('resolvedConnectivityCapabilities')), createObject(), createObject('connectivityCapabilities', variables('resolvedConnectivityCapabilities'))), if(empty(parameters('connectivityConfiguration').description), createObject(), createObject('description', parameters('connectivityConfiguration').description)), if(empty(tryGet(parameters('connectivityConfiguration'), 'hubs')), createObject(), createObject('hubs', tryGet(parameters('connectivityConfiguration'), 'hubs')))))]"
+            }
+          },
+          "outputs": {
+            "name": {
+              "type": "string",
+              "value": "[format('{0}/{1}', parameters('networkManagerName'), parameters('connectivityConfiguration').name)]"
+            },
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', split(format('{0}/{1}', parameters('networkManagerName'), parameters('connectivityConfiguration').name), '/')[0], split(format('{0}/{1}', parameters('networkManagerName'), parameters('connectivityConfiguration').name), '/')[1])]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "networkGroupModules",
+        "networkManager"
+      ]
+    },
+    "routingConfigurationModules": {
+      "copy": {
+        "name": "routingConfigurationModules",
+        "count": "[length(coalesce(parameters('routingConfigurations'), createArray()))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}-routing-{1}', take(parameters('name'), 37), copyIndex())]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "networkManagerName": {
+            "value": "[parameters('name')]"
+          },
+          "routingConfiguration": {
+            "value": "[coalesce(parameters('routingConfigurations'), createArray())[copyIndex()]]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.36.1.42791",
+              "templateHash": "808952057701686145"
+            },
+            "name": "Network Manager Routing Configuration",
+            "description": "Deploys a Routing Configuration for Azure Network Manager."
+          },
+          "definitions": {
+            "_1.addressPrefixType": {
+              "type": "object",
+              "properties": {
+                "addressPrefix": {
+                  "type": "string"
+                },
+                "addressPrefixType": {
+                  "type": "string",
+                  "allowedValues": [
+                    "IPPrefix",
+                    "NetworkGroup",
+                    "ServiceTag"
+                  ]
+                }
+              },
+              "metadata": {
+                "description": "Defines an address prefix and its type.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            },
+            "_1.routingConfigurationNextHopType": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "allowedValues": [
+                    "Internet",
+                    "NoNextHop",
+                    "VirtualAppliance",
+                    "VirtualNetworkGateway",
+                    "VnetLocal"
+                  ],
+                  "metadata": {
+                    "description": "The type of the next hop."
+                  }
+                },
+                "nextHopAddress": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The IP address of the next hop if the type is VirtualAppliance."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            },
+            "_1.routingConfigurationRuleCollectionType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "metadata": {
+                    "description": "The name of the rule collection."
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The description of the rule collection."
+                  }
+                },
+                "appliesTo": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.routingConfigurationRulesCollectionAppliesToType"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The list of network groups to which this rule collection applies."
+                  }
+                },
+                "disableBgpRoutePropagation": {
+                  "type": "string",
+                  "allowedValues": [
+                    "False",
+                    "True"
+                  ],
+                  "metadata": {
+                    "description": "Indicates whether BGP route propagation is disabled."
+                  }
+                },
+                "peeringRoutePropagationRules": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.routingConfigurationRulesCollectionPeeringRoutePropagationRulesType"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The list of peering route propagation rules."
+                  }
+                },
+                "rules": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.routingConfigurationRuleType"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Defines the structure of a rule type."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Defines the Rules Collections of a Routing Configuration",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            },
+            "_1.routingConfigurationRulesCollectionAppliesToType": {
+              "type": "object",
+              "properties": {
+                "networkGroupId": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "The ID of the network group to which this rule collection applies."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Defines the structure of a rules collection applies to type.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            },
+            "_1.routingConfigurationRulesCollectionPeeringRoutePropagationRulesType": {
+              "type": "object",
+              "properties": {
+                "propagationOption": {
+                  "type": "string",
+                  "allowedValues": [
+                    "Default",
+                    "DisableAllPeeringPrefixes"
+                  ]
+                }
+              },
+              "metadata": {
+                "description": "Defines the structure of a peering route propagation rule.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            },
+            "_1.routingConfigurationRuleType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "metadata": {
+                    "description": "The name of the rule."
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The description of the rule."
+                  }
+                },
+                "destination": {
+                  "$ref": "#/definitions/_1.addressPrefixType",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The list of network groups to which this rule applies."
+                  }
+                },
+                "nextHop": {
+                  "$ref": "#/definitions/_1.routingConfigurationNextHopType",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The list of next hop configurations for the rule."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Defines the structure of a rule type.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            },
+            "routingConfigurationType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "metadata": {
+                    "description": "The name of the routing configuration."
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The description of the routing configuration."
+                  }
+                },
+                "ruleCollections": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.routingConfigurationRuleCollectionType"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "The list of applicable network groups."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Defines the structure of a routing configuration.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../types/network-managers-types.bicep"
+                }
+              }
+            }
+          },
+          "parameters": {
+            "networkManagerName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the parent Azure Network Manager."
+              }
+            },
+            "routingConfiguration": {
+              "$ref": "#/definitions/routingConfigurationType",
+              "metadata": {
+                "description": "The routing configuration to deploy."
+              }
+            }
+          },
+          "resources": {
+            "routingConfig": {
+              "type": "Microsoft.Network/networkManagers/routingConfigurations",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('networkManagerName'), parameters('routingConfiguration').name)]",
+              "properties": {
+                "description": "[coalesce(tryGet(parameters('routingConfiguration'), 'description'), '')]"
+              }
+            },
+            "ruleCollectionsModule": {
+              "copy": {
+                "name": "ruleCollectionsModule",
+                "count": "[length(coalesce(tryGet(parameters('routingConfiguration'), 'ruleCollections'), createArray()))]"
+              },
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('{0}-{1}', format('{0}/{1}', parameters('networkManagerName'), parameters('routingConfiguration').name), coalesce(tryGet(parameters('routingConfiguration'), 'ruleCollections'), createArray())[copyIndex()].name)]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "routingConfigName": {
+                    "value": "[format('{0}/{1}', parameters('networkManagerName'), parameters('routingConfiguration').name)]"
+                  },
+                  "ruleCollection": {
+                    "value": "[coalesce(tryGet(parameters('routingConfiguration'), 'ruleCollections'), createArray())[copyIndex()]]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "2.0",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.36.1.42791",
+                      "templateHash": "13034842657369912973"
+                    },
+                    "name": "Network Manager Routing Rules Collection",
+                    "description": "Deploys a Rule Collection to a Routing Configuration in Azure Network Manager."
+                  },
+                  "definitions": {
+                    "_1.addressPrefixType": {
+                      "type": "object",
+                      "properties": {
+                        "addressPrefix": {
+                          "type": "string"
+                        },
+                        "addressPrefixType": {
+                          "type": "string",
+                          "allowedValues": [
+                            "IPPrefix",
+                            "NetworkGroup",
+                            "ServiceTag"
+                          ]
+                        }
+                      },
+                      "metadata": {
+                        "description": "Defines an address prefix and its type.",
+                        "__bicep_imported_from!": {
+                          "sourceTemplate": "../types/network-managers-types.bicep"
+                        }
+                      }
+                    },
+                    "_1.routingConfigurationNextHopType": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "allowedValues": [
+                            "Internet",
+                            "NoNextHop",
+                            "VirtualAppliance",
+                            "VirtualNetworkGateway",
+                            "VnetLocal"
+                          ],
+                          "metadata": {
+                            "description": "The type of the next hop."
+                          }
+                        },
+                        "nextHopAddress": {
+                          "type": "string",
+                          "nullable": true,
+                          "metadata": {
+                            "description": "The IP address of the next hop if the type is VirtualAppliance."
+                          }
+                        }
+                      },
+                      "metadata": {
+                        "__bicep_imported_from!": {
+                          "sourceTemplate": "../types/network-managers-types.bicep"
+                        }
+                      }
+                    },
+                    "_1.routingConfigurationRulesCollectionAppliesToType": {
+                      "type": "object",
+                      "properties": {
+                        "networkGroupId": {
+                          "type": "string",
+                          "metadata": {
+                            "description": "The ID of the network group to which this rule collection applies."
+                          }
+                        }
+                      },
+                      "metadata": {
+                        "description": "Defines the structure of a rules collection applies to type.",
+                        "__bicep_imported_from!": {
+                          "sourceTemplate": "../types/network-managers-types.bicep"
+                        }
+                      }
+                    },
+                    "_1.routingConfigurationRulesCollectionPeeringRoutePropagationRulesType": {
+                      "type": "object",
+                      "properties": {
+                        "propagationOption": {
+                          "type": "string",
+                          "allowedValues": [
+                            "Default",
+                            "DisableAllPeeringPrefixes"
+                          ]
+                        }
+                      },
+                      "metadata": {
+                        "description": "Defines the structure of a peering route propagation rule.",
+                        "__bicep_imported_from!": {
+                          "sourceTemplate": "../types/network-managers-types.bicep"
+                        }
+                      }
+                    },
+                    "_1.routingConfigurationRuleType": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64,
+                          "metadata": {
+                            "description": "The name of the rule."
+                          }
+                        },
+                        "description": {
+                          "type": "string",
+                          "nullable": true,
+                          "metadata": {
+                            "description": "The description of the rule."
+                          }
+                        },
+                        "destination": {
+                          "$ref": "#/definitions/_1.addressPrefixType",
+                          "nullable": true,
+                          "metadata": {
+                            "description": "The list of network groups to which this rule applies."
+                          }
+                        },
+                        "nextHop": {
+                          "$ref": "#/definitions/_1.routingConfigurationNextHopType",
+                          "nullable": true,
+                          "metadata": {
+                            "description": "The list of next hop configurations for the rule."
+                          }
+                        }
+                      },
+                      "metadata": {
+                        "description": "Defines the structure of a rule type.",
+                        "__bicep_imported_from!": {
+                          "sourceTemplate": "../types/network-managers-types.bicep"
+                        }
+                      }
+                    },
+                    "routingConfigurationRuleCollectionType": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64,
+                          "metadata": {
+                            "description": "The name of the rule collection."
+                          }
+                        },
+                        "description": {
+                          "type": "string",
+                          "nullable": true,
+                          "metadata": {
+                            "description": "The description of the rule collection."
+                          }
+                        },
+                        "appliesTo": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/_1.routingConfigurationRulesCollectionAppliesToType"
+                          },
+                          "nullable": true,
+                          "metadata": {
+                            "description": "The list of network groups to which this rule collection applies."
+                          }
+                        },
+                        "disableBgpRoutePropagation": {
+                          "type": "string",
+                          "allowedValues": [
+                            "False",
+                            "True"
+                          ],
+                          "metadata": {
+                            "description": "Indicates whether BGP route propagation is disabled."
+                          }
+                        },
+                        "peeringRoutePropagationRules": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/_1.routingConfigurationRulesCollectionPeeringRoutePropagationRulesType"
+                          },
+                          "nullable": true,
+                          "metadata": {
+                            "description": "The list of peering route propagation rules."
+                          }
+                        },
+                        "rules": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/_1.routingConfigurationRuleType"
+                          },
+                          "nullable": true,
+                          "metadata": {
+                            "description": "Defines the structure of a rule type."
+                          }
+                        }
+                      },
+                      "metadata": {
+                        "description": "Defines the Rules Collections of a Routing Configuration",
+                        "__bicep_imported_from!": {
+                          "sourceTemplate": "../types/network-managers-types.bicep"
+                        }
+                      }
+                    }
+                  },
+                  "parameters": {
+                    "routingConfigName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The name of the parent Routing Configuration in Azure Network Manager."
+                      }
+                    },
+                    "ruleCollection": {
+                      "$ref": "#/definitions/routingConfigurationRuleCollectionType",
+                      "metadata": {
+                        "description": "The Rule Collection to deploy."
+                      }
+                    }
+                  },
+                  "resources": {
+                    "ruleCollectionModule": {
+                      "type": "Microsoft.Network/networkManagers/routingConfigurations/ruleCollections",
+                      "apiVersion": "2024-09-01-preview",
+                      "name": "[format('{0}/{1}', parameters('routingConfigName'), parameters('ruleCollection').name)]",
+                      "properties": {
+                        "appliesTo": "[coalesce(tryGet(parameters('ruleCollection'), 'appliesTo'), createArray())]",
+                        "description": "[coalesce(tryGet(parameters('ruleCollection'), 'description'), '')]",
+                        "disableBgpRoutePropagation": "[coalesce(parameters('ruleCollection').disableBgpRoutePropagation, 'True')]",
+                        "peeringRoutePropagationRules": "[coalesce(tryGet(parameters('ruleCollection'), 'peeringRoutePropagationRules'), createArray())]"
+                      }
+                    },
+                    "rulesModule": {
+                      "copy": {
+                        "name": "rulesModule",
+                        "count": "[length(coalesce(tryGet(parameters('ruleCollection'), 'rules'), createArray()))]"
+                      },
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[coalesce(tryGet(parameters('ruleCollection'), 'rules'), createArray())[copyIndex()].name]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "ruleCollectionName": {
+                            "value": "[parameters('ruleCollection').name]"
+                          },
+                          "rule": {
+                            "value": "[coalesce(tryGet(parameters('ruleCollection'), 'rules'), createArray())[copyIndex()]]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "languageVersion": "2.0",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.36.1.42791",
+                              "templateHash": "3495343073538541048"
+                            },
+                            "name": "Network Manager Routing Rule",
+                            "description": "Deploys a Rule to a Rules Collection in a Routing Configurations for Azure Network Manager."
+                          },
+                          "definitions": {
+                            "_1.addressPrefixType": {
+                              "type": "object",
+                              "properties": {
+                                "addressPrefix": {
+                                  "type": "string"
+                                },
+                                "addressPrefixType": {
+                                  "type": "string",
+                                  "allowedValues": [
+                                    "IPPrefix",
+                                    "NetworkGroup",
+                                    "ServiceTag"
+                                  ]
+                                }
+                              },
+                              "metadata": {
+                                "description": "Defines an address prefix and its type.",
+                                "__bicep_imported_from!": {
+                                  "sourceTemplate": "../types/network-managers-types.bicep"
+                                }
+                              }
+                            },
+                            "_1.routingConfigurationNextHopType": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "allowedValues": [
+                                    "Internet",
+                                    "NoNextHop",
+                                    "VirtualAppliance",
+                                    "VirtualNetworkGateway",
+                                    "VnetLocal"
+                                  ],
+                                  "metadata": {
+                                    "description": "The type of the next hop."
+                                  }
+                                },
+                                "nextHopAddress": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "metadata": {
+                                    "description": "The IP address of the next hop if the type is VirtualAppliance."
+                                  }
+                                }
+                              },
+                              "metadata": {
+                                "__bicep_imported_from!": {
+                                  "sourceTemplate": "../types/network-managers-types.bicep"
+                                }
+                              }
+                            },
+                            "routingConfigurationRuleType": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 64,
+                                  "metadata": {
+                                    "description": "The name of the rule."
+                                  }
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "metadata": {
+                                    "description": "The description of the rule."
+                                  }
+                                },
+                                "destination": {
+                                  "$ref": "#/definitions/_1.addressPrefixType",
+                                  "nullable": true,
+                                  "metadata": {
+                                    "description": "The list of network groups to which this rule applies."
+                                  }
+                                },
+                                "nextHop": {
+                                  "$ref": "#/definitions/_1.routingConfigurationNextHopType",
+                                  "nullable": true,
+                                  "metadata": {
+                                    "description": "The list of next hop configurations for the rule."
+                                  }
+                                }
+                              },
+                              "metadata": {
+                                "description": "Defines the structure of a rule type.",
+                                "__bicep_imported_from!": {
+                                  "sourceTemplate": "../types/network-managers-types.bicep"
+                                }
+                              }
+                            }
+                          },
+                          "parameters": {
+                            "ruleCollectionName": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Mandatory. The name of the parent Routing Configuration in Azure Network Manager."
+                              }
+                            },
+                            "rule": {
+                              "$ref": "#/definitions/routingConfigurationRuleType",
+                              "metadata": {
+                                "description": "Mandatory. The Rule to deploy."
+                              }
+                            }
+                          },
+                          "resources": {
+                            "ruleModule": {
+                              "type": "Microsoft.Network/networkManagers/routingConfigurations/ruleCollections/rules",
+                              "apiVersion": "2024-05-01",
+                              "name": "[format('{0}/{1}', parameters('ruleCollectionName'), parameters('rule').name)]",
+                              "properties": "[union(createObject('description', coalesce(tryGet(parameters('rule'), 'description'), '')), if(not(equals(tryGet(parameters('rule'), 'destination'), null())), createObject('destination', tryGet(parameters('rule'), 'destination')), createObject()), if(not(equals(tryGet(parameters('rule'), 'nextHop'), null())), createObject('nextHop', tryGet(parameters('rule'), 'nextHop')), createObject()))]"
+                            }
+                          },
+                          "outputs": {
+                            "id": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "The ID of the deployed rule module."
+                              },
+                              "value": "[resourceId('Microsoft.Network/networkManagers/routingConfigurations/ruleCollections/rules', split(format('{0}/{1}', parameters('ruleCollectionName'), parameters('rule').name), '/')[0], split(format('{0}/{1}', parameters('ruleCollectionName'), parameters('rule').name), '/')[1], split(format('{0}/{1}', parameters('ruleCollectionName'), parameters('rule').name), '/')[2], split(format('{0}/{1}', parameters('ruleCollectionName'), parameters('rule').name), '/')[3])]"
+                            },
+                            "name": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "The name of the deployed rule module."
+                              },
+                              "value": "[format('{0}/{1}', parameters('ruleCollectionName'), parameters('rule').name)]"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The resource ID of the Rule Collection."
+                      },
+                      "value": "[resourceId('Microsoft.Network/networkManagers/routingConfigurations/ruleCollections', split(format('{0}/{1}', parameters('routingConfigName'), parameters('ruleCollection').name), '/')[0], split(format('{0}/{1}', parameters('routingConfigName'), parameters('ruleCollection').name), '/')[1], split(format('{0}/{1}', parameters('routingConfigName'), parameters('ruleCollection').name), '/')[2])]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "The name of the Rule Collection"
+                      },
+                      "value": "[format('{0}/{1}', parameters('routingConfigName'), parameters('ruleCollection').name)]"
+                    },
+                    "rules": {
+                      "type": "array",
+                      "metadata": {
+                        "description": "The rules of the Rule Collection."
+                      },
+                      "copy": {
+                        "count": "[length(range(0, length(coalesce(tryGet(parameters('ruleCollection'), 'rules'), createArray()))))]",
+                        "input": {
+                          "id": "[reference(format('rulesModule[{0}]', range(0, length(coalesce(tryGet(parameters('ruleCollection'), 'rules'), createArray())))[copyIndex()])).outputs.id.value]",
+                          "name": "[reference(format('rulesModule[{0}]', range(0, length(coalesce(tryGet(parameters('ruleCollection'), 'rules'), createArray())))[copyIndex()])).outputs.name.value]"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "routingConfig"
+              ]
+            }
+          },
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkManagers/routingConfigurations', split(format('{0}/{1}', parameters('networkManagerName'), parameters('routingConfiguration').name), '/')[0], split(format('{0}/{1}', parameters('networkManagerName'), parameters('routingConfiguration').name), '/')[1])]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[format('{0}/{1}', parameters('networkManagerName'), parameters('routingConfiguration').name)]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "networkGroupModules",
+        "networkManager"
+      ]
+    }
+  },
+  "outputs": {
+    "resourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource group the Network Manager was deployed."
+      },
+      "value": "[resourceGroup().name]"
+    },
+    "name": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the deployed Network Manager."
+      },
+      "value": "[parameters('name')]"
+    },
+    "resourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID of the deployed Network Manager."
+      },
+      "value": "[resourceId('Microsoft.Network/networkManagers', parameters('name'))]"
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "The location of the deployed Network Manager."
+      },
+      "value": "[reference('networkManager', '2024-05-01', 'full').location]"
+    },
+    "ipamPools": {
+      "type": "array",
+      "metadata": {
+        "description": "An array of objects containing the resource ID, name, and address prefixes for each deployed IPAM pool."
+      },
+      "copy": {
+        "count": "[length(range(0, length(parameters('ipamPools'))))]",
+        "input": {
+          "id": "[reference(format('ipamPoolModules[{0}]', range(0, length(parameters('ipamPools')))[copyIndex()])).outputs.id.value]",
+          "name": "[reference(format('ipamPoolModules[{0}]', range(0, length(parameters('ipamPools')))[copyIndex()])).outputs.name.value]",
+          "addressPrefixes": "[reference(format('ipamPoolModules[{0}]', range(0, length(parameters('ipamPools')))[copyIndex()])).outputs.addressPrefixes.value]"
+        }
+      }
+    },
+    "networkGroups": {
+      "type": "array",
+      "metadata": {
+        "description": "An array of objects containing the resource ID and name of each deployed Network Group."
+      },
+      "copy": {
+        "count": "[length(range(0, length(parameters('networkGroups'))))]",
+        "input": {
+          "id": "[reference(format('networkGroupModules[{0}]', range(0, length(parameters('networkGroups')))[copyIndex()])).outputs.id.value]",
+          "name": "[reference(format('networkGroupModules[{0}]', range(0, length(parameters('networkGroups')))[copyIndex()])).outputs.name.value]"
+        }
+      }
+    },
+    "connectivityConfigurations": {
+      "type": "array",
+      "metadata": {
+        "description": "An array of objects containing the resource ID, name, and address prefixes for each deployed Connectivity Configuration."
+      },
+      "copy": {
+        "count": "[length(range(0, length(parameters('connectivityConfigurations'))))]",
+        "input": {
+          "id": "[reference(format('connectivityConfigurationsModule[{0}]', range(0, length(parameters('connectivityConfigurations')))[copyIndex()])).outputs.id.value]",
+          "name": "[reference(format('connectivityConfigurationsModule[{0}]', range(0, length(parameters('connectivityConfigurations')))[copyIndex()])).outputs.name.value]"
+        }
+      }
+    },
+    "routingConfigurations": {
+      "type": "array",
+      "metadata": {
+        "description": "An array of objects containing the resource ID and name of each deployed routing configuration."
+      },
+      "copy": {
+        "count": "[length(range(0, length(parameters('routingConfigurations'))))]",
+        "input": {
+          "id": "[reference(format('routingConfigurationModules[{0}]', range(0, length(parameters('routingConfigurations')))[copyIndex()])).outputs.id.value]",
+          "name": "[reference(format('routingConfigurationModules[{0}]', range(0, length(parameters('routingConfigurations')))[copyIndex()])).outputs.name.value]"
+        }
+      }
+    }
+  }
+}
