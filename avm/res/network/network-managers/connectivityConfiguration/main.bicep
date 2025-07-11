@@ -11,7 +11,7 @@ metadata description = 'Deploys a Connectivity Configuration in Azure Network Ma
 @description('The name of the parent Network Manager resource.')
 param networkManagerName string
 
-import { connectivityConfigurationType } from '../network-managers-types.bicep'
+import { connectivityConfigurationType } from '../types/network-managers-types.bicep'
 @description('A Connectivity Configuration to deploy.')
 param connectivityConfiguration connectivityConfigurationType
 

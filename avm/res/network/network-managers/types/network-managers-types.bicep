@@ -28,9 +28,6 @@ type ipamPoolType = {
 
   @sys.description('Optional. A dictionary of resource tags to apply to the IPAM pool. Example: { "env": "prod", "costCenter": "1234" }')
   tags: object ?
-
-  @sys.description('Optional. The provisioning state of the IPAM pool. This is generally managed by Azure and should not be set manually.')
-  provisioningState: string ?
 }
 
 // Microsoft.Network/networkManagers/networkGroups@2024-07-01
@@ -310,7 +307,7 @@ type verifierWorkspaceType = {
   location: string
 
   @sys.description('Optional. Properties of Verifier Workspace resource.')
-  properties: verifierWorkspaceProperrtiesType
+  properties: verifierWorkspacePropertiesType
 
   @sys.description('Optional. A dictionary of resource tags to apply to the IPAM pool. Example: { "env": "prod", "costCenter": "1234" }')
   tags: object ?
@@ -321,12 +318,9 @@ type verifierWorkspaceType = {
 
 @export()
 @sys.description('Properties of Verifier Workspace resource.')
-type verifierWorkspaceProperrtiesType = {
+type verifierWorkspacePropertiesType = {
   @description('Optional. A description of the Verifier Workspace.')
   description: string
-
-  @sys.description('Optional. Define and test connectivity expectations between resources')
-  reachabilityanalysisintents: verifierWorkspaceReachabilityAnalysisIntents[]?
 }
 
 @export()
@@ -337,13 +331,6 @@ type verifierWorkspaceReachabilityAnalysisIntents = {
   @sys.description('Mandatory. The name of the intent.')
   name: string
 
-  @sys.description('Mandatory. Properties for an Analysis Intent in a Verifier Workspace.')
-  properties: verifierWorkspaceReachabilityAnalysisIntentsProperties
-}
-
-@export()
-@sys.description('Properties for an Analysis Intent in a Verifier Workspace.')
-type verifierWorkspaceReachabilityAnalysisIntentsProperties = {
   @sys.description('Optional. The description of the Analysis Intent')
   description: string?
 

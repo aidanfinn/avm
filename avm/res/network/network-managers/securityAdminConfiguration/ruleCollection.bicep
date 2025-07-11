@@ -11,7 +11,7 @@ metadata description = 'Deploys a Security Admin Rule Collection to a Security A
 @sys.description('The name of the parent Security Admin Configuration in Azure Network Manager.')
 param securityAdminConfigurationName string
 
-import { securityAdminConfigurationRulesCollectionsType } from '../network-managers-types.bicep'
+import { securityAdminConfigurationRulesCollectionsType } from '../types/network-managers-types.bicep'
 @sys.description('The Rule Collection to deploy.')
 param ruleCollection securityAdminConfigurationRulesCollectionsType
 

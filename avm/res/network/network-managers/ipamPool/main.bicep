@@ -14,7 +14,7 @@ param networkManagerName string
 @description('The location of the parent resource.')
 param location string
 
-import { ipamPoolType } from '../network-managers-types.bicep'
+import { ipamPoolType } from '../types/network-managers-types.bicep'
 @description('The IPAM pool configuration to deploy.')
 param ipamPool ipamPoolType
 

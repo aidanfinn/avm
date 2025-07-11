@@ -1,8 +1,8 @@
 // Copyright (c) Cloud Mechanix
 // Licensed under the MIT License.
 
-metadata name = 'Network Manager Routing Configuration'
-metadata description = 'Deploys one or more Routing Configurations for Azure Network Manager.'
+metadata name = 'Network Manager Security Admin Configuration'
+metadata description = 'Deploys one or more Security Admin Configurations for Azure Network Manager.'
 
 // ============= //
 // Parameters    //
@@ -11,7 +11,7 @@ metadata description = 'Deploys one or more Routing Configurations for Azure Net
 @sys.description('The name of the parent Azure Network Manager.')
 param networkManagerName string
 
-import { securityAdminConfigurationType } from '../network-managers-types.bicep'
+import { securityAdminConfigurationType } from '../types/network-managers-types.bicep'
 @sys.description('The routing configuration to deploy.')
 param securityAdminConfiguration securityAdminConfigurationType
 
@@ -27,6 +27,14 @@ resource securityAdminConfigurationModule 'Microsoft.Network/networkManagers/sec
     networkGroupAddressSpaceAggregationOption: securityAdminConfiguration.networkGroupAddressSpaceAggregationOption ?? 'None'
   }
 }
+
+module intentsModule './ruleCollection.bicep' = [for ruleCollection in securityAdminConfiguration.?rulesCollections ?? []: {
+  name: '${networkManagerName}-${ruleCollection.name}'
+  params: {
+    securityAdminConfigurationName: securityAdminConfigurationModule.name
+    ruleCollection: ruleCollection
+  }
+}]
 
 // ================//
 // Outputs         //
