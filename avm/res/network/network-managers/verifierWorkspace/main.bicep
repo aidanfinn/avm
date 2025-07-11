@@ -39,5 +39,5 @@ module intentsModule './intents.bicep' = [for intent in verifierWorkspace.?reach
 // Outputs       //
 // ============= //
 
-output verifierWorkspaceId string = verifierWorkspaceResource.id
-output verifierWorkspaceName string = verifierWorkspaceResource.name
+output id string = verifierWorkspaceResource.id
+output name string = verifierWorkspaceResource.name

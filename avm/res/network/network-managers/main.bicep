@@ -68,6 +68,10 @@ import { routingConfigurationType } from './types/network-managers-types.bicep'
 @sys.description('An array of routing configurations to deploy under the Network Manager.')
 param routingConfigurations routingConfigurationType[] = []
 
+import { verifierWorkspaceType } from './types/network-managers-types.bicep'
+@sys.description('An array of routing configurations to deploy under the Network Manager.')
+param verifierWorkspaces verifierWorkspaceType[] = []
+
 // ================//
 // Variables       //
 // ================//
@@ -238,6 +242,15 @@ module routingConfigurationModules './routingConfiguration/main.bicep' = [for (c
   ]
 }]
 
+module verifierWorkspaceModules './verifierWorkspace/main.bicep' = [for (config, i) in (verifierWorkspaces ?? []): {
+  name: '${take(name, 37)}-verifier-${i}'
+  params: {
+    networkManagerName: networkManager.name
+    verifierWorkspace: config
+  }
+}]
+
+
 // ================//
 // Outputs         //
 // ================//
@@ -287,6 +300,13 @@ output routingConfigurations array = [
   }
 ]
 
+@sys.description('An array of objects containing the resource ID and name of each deployed routing configuration.')
+output verifierWorkspaces array = [
+  for (i, config) in range(0, length(verifierWorkspaces)): {
+    id: verifierWorkspaceModules[i].outputs.id
+    name: verifierWorkspaceModules[i].outputs.name
+  }
+]
 
 // =============== //
 //   Definitions   //
