@@ -11,35 +11,27 @@ metadata description = 'Deploys one or more Network Groups for Azure Network Man
 @sys.description('Name of the parent Network Manager resource.')
 param networkManagerName string
 
-@sys.description('Name of the Network Group.')
-param name string
-
-@sys.description('Optional description for the Network Group.')
-param description string = ''
-
-@sys.description('The type of the group member.')
-param memberType string
-
-@sys.description('The static list of member resources for the network group.')
-param staticMemberResourceIds array = []
+import { networkGroupType } from '../types/network-managers-types.bicep'
+@sys.description('The Network Group to deploy.')
+param networkGroup networkGroupType
 
 // ================//
 // Deployments     //
 // ================//
 
-resource networkGroup 'Microsoft.Network/networkManagers/networkGroups@2024-05-01' = {
-  name: '${networkManagerName}/${name}-networkGroup'
+resource networkGroupModule 'Microsoft.Network/networkManagers/networkGroups@2024-05-01' = {
+  name: '${networkManagerName}/${networkGroup.name}'
   properties: {
-    description: !empty(description) ? description : null
-    memberType: memberType
+    description: networkGroup.?description ?? null
+    memberType: networkGroup.memberType
   }
 }
 
-resource staticMembers 'Microsoft.Network/networkManagers/networkGroups/staticMembers@2024-05-01' = [for (member, i) in staticMemberResourceIds: if (!empty(staticMemberResourceIds)) {
-  name: '${name}-networkGroup-member${i}'
-  parent: networkGroup
+resource staticMembers 'Microsoft.Network/networkManagers/networkGroups/staticMembers@2024-05-01' = [for (member, i) in networkGroup.?staticMemberResourceIds ?? []: {
+  name: '${networkGroup.name}-member${i}'
+  parent: networkGroupModule
   properties: {
-    resourceId: member.staticMemberResourceIds
+    resourceId: member
   }
 }]
 
@@ -47,5 +39,5 @@ resource staticMembers 'Microsoft.Network/networkManagers/networkGroups/staticMe
 // Outputs         //
 // ================//
 
-output id string = networkGroup.id
-output name string = networkGroup.name
+output id string = networkGroupModule.id
+output name string = networkGroupModule.name

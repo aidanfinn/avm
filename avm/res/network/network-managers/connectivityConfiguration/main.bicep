@@ -1,8 +1,8 @@
 // Copyright (c) Cloud Mechanix
 // Licensed under the MIT License.
 
-metadata name = 'Network Manager Connectivity Configurations'
-metadata description = 'Deploys one or more Connectivity Configurations for Azure Network Manager.'
+metadata name = 'Network Manager Connectivity Configuration'
+metadata description = 'Deploys a Connectivity Configuration in Azure Network Manager.'
 
 // ============= //
 // Parameters    //
@@ -11,31 +11,53 @@ metadata description = 'Deploys one or more Connectivity Configurations for Azur
 @description('The name of the parent Network Manager resource.')
 param networkManagerName string
 
-@description('Array of connectivity configurations to deploy.')
-param connectivityConfigurations array
+import { connectivityConfigurationType } from '../types/network-managers-types.bicep'
+@description('A Connectivity Configuration to deploy.')
+param connectivityConfiguration connectivityConfigurationType
+
+// ============= //
+// Variables     //
+// ============= //
+
+var resolvedConnectivityCapabilities = empty(connectivityConfiguration.?connectivityCapabilities) ? null : {
+  connectedGroupAddressOverlap: connectivityConfiguration.?connectivityCapabilities.connectedGroupAddressOverlap ?? 'Disallowed'
+  connectedGroupPrivateEndpointsScale: connectivityConfiguration.?connectivityCapabilities.connectedGroupPrivateEndpointsScale ?? 'Standard'
+  peeringEnforcement: connectivityConfiguration.?connectivityCapabilities.peeringEnforcement ?? 'Enforced'
+}
 
 // ================//
 // Deployments     //
 // ================//
 
-resource connectivityConfiguration 'Microsoft.Network/networkManagers/connectivityConfigurations@2024-05-01' = [for config in connectivityConfigurations: {
-  name: '${networkManagerName}/${config.name}'
+resource connectivityConfigurationModule 'Microsoft.Network/networkManagers/connectivityConfigurations@2024-07-01' = {
+  name: '${networkManagerName}/${connectivityConfiguration.name}'
   properties: {
-    appliesToGroups: config.appliesToGroups
-    connectivityTopology: config.connectivityTopology
-    hubs: config.hubs ?? null
-    isGlobal: config.isGlobal ?? false
-    deleteExistingPeering: config.deleteExistingPeering ?? false
-    description: config.description ?? null
+    connectivityTopology: connectivityConfiguration.connectivityTopology ?? 'HubAndSpoke'
+    deleteExistingPeering: connectivityConfiguration.deleteExistingPeering ?? false
+    isGlobal: connectivityConfiguration.isGlobal ?? false
+
+    // Optional blocks conditionally included
+    ...(empty(connectivityConfiguration.appliesToGroups) ? {} : {
+      appliesToGroups: connectivityConfiguration.appliesToGroups
+    })
+    ...(empty(resolvedConnectivityCapabilities) ? {} : {
+      connectivityCapabilities: resolvedConnectivityCapabilities
+    })
+    ...(empty(connectivityConfiguration.description) ? {} : {
+      description: connectivityConfiguration.description
+    })
+    ...(empty(connectivityConfiguration.?hubs) ? {} : {
+      hubs: connectivityConfiguration.?hubs
+    })
   }
-}]
+}
 
 // ================//
 // Outputs         //
 // ================//
 
-output names array = [for config in connectivityConfigurations: config.name]
-output resourceIds array = [for (i, config) in connectivityConfigurations: connectivityConfiguration[i].id]
+output name string = connectivityConfigurationModule.name
+output id string = connectivityConfigurationModule.id
 
 // =============== //
 //   Definitions   //

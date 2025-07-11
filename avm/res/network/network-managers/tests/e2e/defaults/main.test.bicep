@@ -12,7 +12,7 @@ metadata description = 'This instance deploys the module with the minimum set of
 
 @description('Optional. The name of the resource group to deploy for testing purposes.')
 @maxLength(90)
-param resourceGroupName string = 'dep-${namePrefix}-network.virtualnetworks-${serviceShort}-rg'
+param resourceGroupName string = 'test-virtual-networks-basic-rg'
 
 @description('Optional. The location to deploy resources to.')
 param resourceLocation string = deployment().location
@@ -21,7 +21,17 @@ param resourceLocation string = deployment().location
 param serviceShort string = 'nvnmin'
 
 @description('Optional. A token to inject into the name of each resource.')
-param namePrefix string = '#_namePrefix_#'
+param namePrefix string = take(toLower(uniqueString(newGuid())), 12)
+
+@description('Optional. A timestamp to inject into the tags of each resource.')
+param timestamp string = utcNow()
+
+@description('Tags to apply to main deployment resources.')
+param mainTags object = {
+  environment: 'test'
+  project: 'network-managers'
+  timestamp: timestamp
+}
 
 // ============ //
 // Dependencies //
@@ -32,6 +42,7 @@ param namePrefix string = '#_namePrefix_#'
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
   location: resourceLocation
+  tags: mainTags
 }
 
 // ============== //
@@ -44,8 +55,15 @@ module testDeployment '../../../main.bicep' = [
     scope: resourceGroup
     name: '${uniqueString(deployment().name, resourceLocation)}-test-${serviceShort}-${iteration}'
     params: {
-      name: '${namePrefix}${serviceShort}001'
+      name: '${namePrefix}${serviceShort}${iteration}'
       location: resourceLocation
+      tags: mainTags
     }
   }
 ]
+
+// ============== //
+// Outputs        //
+// ============== //
+
+output result object = testDeployment[0].outputs
