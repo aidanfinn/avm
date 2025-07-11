@@ -15,19 +15,40 @@ import { connectivityConfigurationType } from '../network-managers-types.bicep'
 @description('A Connectivity Configuration to deploy.')
 param connectivityConfiguration connectivityConfigurationType
 
+// ============= //
+// Variables     //
+// ============= //
+
+var resolvedConnectivityCapabilities = empty(connectivityConfiguration.?connectivityCapabilities) ? null : {
+  connectedGroupAddressOverlap: connectivityConfiguration.?connectivityCapabilities.connectedGroupAddressOverlap ?? 'Disallowed'
+  connectedGroupPrivateEndpointsScale: connectivityConfiguration.?connectivityCapabilities.connectedGroupPrivateEndpointsScale ?? 'Standard'
+  peeringEnforcement: connectivityConfiguration.?connectivityCapabilities.peeringEnforcement ?? 'Enforced'
+}
+
 // ================//
 // Deployments     //
 // ================//
 
-resource connectivityConfigurationModule 'Microsoft.Network/networkManagers/connectivityConfigurations@2024-05-01' = {
+resource connectivityConfigurationModule 'Microsoft.Network/networkManagers/connectivityConfigurations@2024-07-01' = {
   name: '${networkManagerName}/${connectivityConfiguration.name}'
   properties: {
-    appliesToGroups: connectivityConfiguration.appliesToGroups ?? null
     connectivityTopology: connectivityConfiguration.connectivityTopology ?? 'HubAndSpoke'
-    hubs: connectivityConfiguration.hubs ?? null
-    isGlobal: connectivityConfiguration.isGlobal ?? false
     deleteExistingPeering: connectivityConfiguration.deleteExistingPeering ?? false
-    description: connectivityConfiguration.description ?? null
+    isGlobal: connectivityConfiguration.isGlobal ?? false
+
+    // Optional blocks conditionally included
+    ...(empty(connectivityConfiguration.appliesToGroups) ? {} : {
+      appliesToGroups: connectivityConfiguration.appliesToGroups
+    })
+    ...(empty(resolvedConnectivityCapabilities) ? {} : {
+      connectivityCapabilities: resolvedConnectivityCapabilities
+    })
+    ...(empty(connectivityConfiguration.description) ? {} : {
+      description: connectivityConfiguration.description
+    })
+    ...(empty(connectivityConfiguration.?hubs) ? {} : {
+      hubs: connectivityConfiguration.?hubs
+    })
   }
 }
 

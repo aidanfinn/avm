@@ -1,3 +1,4 @@
+// Microsoft.Network/networkManagers/ipamPools@2024-07-01
 
 @export()
 @sys.description('Defines the structure for an IPAM pool to be deployed under the Azure Network Manager.')
@@ -32,6 +33,8 @@ type ipamPoolType = {
   provisioningState: string ?
 }
 
+// Microsoft.Network/networkManagers/networkGroups@2024-07-01
+
 @export()
 @sys.description('Defines the structure of a network group used with Azure Virtual Network Manager.')
 type networkGroupType = {
@@ -60,6 +63,8 @@ type networkGroupStaticMemberResourceType = {
   resourceId: string
 }
 
+// Microsoft.Network/networkManagers/connectivityConfigurations@2024-07-01
+
 @export()
 @sys.description('Defines the structure of a connectivity configuration.')
 type connectivityConfigurationType = {
@@ -67,24 +72,52 @@ type connectivityConfigurationType = {
   @minLength(1)
   name: string
 
-  @sys.description('The description of the connectivity configuration.')
-  description: string
+  @sys.description('An array of group resource IDs to which the configuration applies.')
+  appliesToGroups: array
+
+  @sys.description('Defines the capabilities of a connectivity configuration in Azure Network Manager.')
+  connectivityCapabilities: connectivityConfigurationCapabilitiesType?
 
   @sys.description('The connectivity topology (e.g., HubAndSpoke, Mesh).')
   connectivityTopology: 'HubAndSpoke' | 'Mesh'
 
-  @sys.description('An array of hub resource IDs.')
-  hubs: array
-
-  @sys.description('Indicates whether the configuration is global.')
-  isGlobal: 'true' | 'false'
-
   @sys.description('Indicates whether to delete existing peering configurations when applying this connectivity configuration.')
   deleteExistingPeering: 'true' | 'false'
 
-  @sys.description('An array of group resource IDs to which the configuration applies.')
-  appliesToGroups: array
+  @sys.description('The description of the connectivity configuration.')
+  description: string
+
+  @sys.description('An array of hub resource IDs.')
+  hubs: connectivityConfigurationHubType[]?
+
+  @sys.description('Flag if global mesh is supported.')
+  isGlobal: 'False' | 'True'
 }
+
+@export()
+@sys.description('Defines the capabilities of a connectivity configuration in Azure Network Manager.')
+type connectivityConfigurationCapabilitiesType = {
+  @sys.description('Mandatory. Behavior to handle overlapped IP address space among members of the connected group of the connectivity configuration. Allowed | Disallowed')
+  connectedGroupAddressOverlap: 'Allowed' | 'Disallowed'
+
+  @sys.description('Mandatory. Option indicating the scale of private endpoints allowed in the connected group of the connectivity configuration. Allowed | Disallowed')
+  connectedGroupPrivateEndpointsScale: 'HighScale' | 'Standard'
+
+  @sys.description('Mandatory. Option indicating enforcement of peerings created by the connectivity configuration. Allowed | Disallowed')
+  peeringEnforcement: 'Enforced' | 'Unenforced'
+}
+
+@export()
+@sys.description('A hub item.')
+type connectivityConfigurationHubType = {
+  @sys.description('Resource Id.')
+  resourceId: string
+
+  @sys.description('Resource Type.')
+  resourceType: string
+}
+
+// Microsoft.Network/networkManagers/routingConfigurations@2024-09-01-preview
 
 @export()
 @sys.description('Defines the structure of a routing configuration.')
@@ -171,6 +204,8 @@ type routingConfigurationNextHopType = {
   @sys.description('The IP address of the next hop if the type is VirtualAppliance.')
   nextHopAddress: string?
 }
+
+// Microsoft.Network/networkManagers/securityAdminConfigurations@2024-07-01
 
 @export()
 @sys.description('Defines the structure of a Security Admin Configuration.')
@@ -261,3 +296,86 @@ type securityAdminConfigurationRulePropertiesType = {
   sources: addressPrefixType[]?
 }
 
+// Microsoft.Network/networkManagers/verifierWorkspaces@2024-07-01
+
+@export()
+@description('Defines a Verifier Workspace resource with optional intents and runs.')
+type verifierWorkspaceType = {
+  @minLength(1)
+  @maxLength(64)
+  @description('Mandatory. The name of the Verifier Workspace resource.')
+  name: string
+
+  @description('Mandatory. The Azure region for the resource.')
+  location: string
+
+  @sys.description('Optional. Properties of Verifier Workspace resource.')
+  properties: verifierWorkspaceProperrtiesType
+
+  @sys.description('Optional. A dictionary of resource tags to apply to the IPAM pool. Example: { "env": "prod", "costCenter": "1234" }')
+  tags: object ?
+
+  @sys.description('Optional. Define and test connectivity expectations between resources')
+  reachabilityAnalysisIntents: verifierWorkspaceReachabilityAnalysisIntents[]?
+}
+
+@export()
+@sys.description('Properties of Verifier Workspace resource.')
+type verifierWorkspaceProperrtiesType = {
+  @description('Optional. A description of the Verifier Workspace.')
+  description: string
+
+  @sys.description('Optional. Define and test connectivity expectations between resources')
+  reachabilityanalysisintents: verifierWorkspaceReachabilityAnalysisIntents[]?
+}
+
+@export()
+@sys.description('Define and test connectivity expectations between resources')
+type verifierWorkspaceReachabilityAnalysisIntents = {
+  @minLength(1)
+  @maxLength(64)
+  @sys.description('Mandatory. The name of the intent.')
+  name: string
+
+  @sys.description('Mandatory. Properties for an Analysis Intent in a Verifier Workspace.')
+  properties: verifierWorkspaceReachabilityAnalysisIntentsProperties
+}
+
+@export()
+@sys.description('Properties for an Analysis Intent in a Verifier Workspace.')
+type verifierWorkspaceReachabilityAnalysisIntentsProperties = {
+  @sys.description('Optional. The description of the Analysis Intent')
+  description: string?
+
+  @sys.description('Mandatory. Destination resource ID to verify the reachability path of.')
+  destinationResourceId: string
+
+  @sys.description('Mandatory. IP traffic information.')
+  ipTraffic: verifierWorkspaceReachabilityAnalysisIntentsIpTraffic
+
+  @sys.description('Mandatory. Source resource ID to verify the reachability path of.')
+  sourceResourceId: string
+}
+
+@export()
+@sys.description('IP traffic information for a Verifier Workspace Reachability Analysis Intent.')
+type verifierWorkspaceReachabilityAnalysisIntentsIpTraffic = {
+  @sys.description('Mandatory. List of destination IP addresses of the traffic.')
+  destinationIps: string[]
+
+  @sys.description('Mandatory. The destination ports of the traffic.')
+  destinationPorts: string[]
+
+  @sys.description('Mandatory. A string array containing any of Any | ICMP | TCP | UDP')
+  protocols: verifierWorkspaceReachabilityAnalysisIntentsprotocolType[]
+
+  @sys.description('Mandatory. List of source IP addresses of the traffic.')
+  sourceIps: string[]
+
+  @sys.description('Mandatory. The source ports of the traffic.')
+  sourcePorts: string[]
+}
+
+@export()
+@sys.description('Mandatory. A string array containing any of Any | ICMP | TCP | UDP')
+type verifierWorkspaceReachabilityAnalysisIntentsprotocolType = 'Any' | 'ICMP' | 'TCP' | 'UDP'
