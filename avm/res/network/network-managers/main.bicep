@@ -17,28 +17,14 @@ param location string = resourceGroup().location
 @sys.description('Mandatory. The name of the Azure Network Manager resource. Must be 1-80 characters, using only a-z, A-Z, 0-9, _, ., or -. Regex: ^[a-zA-Z0-9_.-]+$')
 @minLength(1)
 @maxLength(80)
-param name string 
-
-@sys.description('Optional. A description of the Azure Virtual Network Manager resource.')
-param description string = ''
+param name string
 
 @sys.description('Optional tags to apply to the Network Manager resource. Example: { "environment": "production", "project": "networking" }')
 param tags object = {}
 
-@sys.description('Optional. The scopes for the Network Manager. Default is the root management group of the tenant. You can specify management groups or subscriptions.')
-param networkManagerScopes object = {
-  managementGroups: [
-    '/providers/Microsoft.Management/managementGroups/${tenant().tenantId}'
-  ]
-  subscriptions: []
-}
-
-@sys.description('Optional. The list of network manager features to apply to the Network Manager. Default is Connectivity, SecurityAdmin, and Routing.')
-param networkManagerScopeAccesses array = [
-  'Connectivity'
-  'SecurityAdmin'
-  'Routing'
-]
+import { networkManagersType } from './types/networkManagers.bicep'
+@sys.description('Mandatory. The configuration for the Network Manager resource.')
+param networkManagerConfig networkManagersType
 
 import { lockType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
 @sys.description('Optional. The lock settings of the service.')
@@ -126,14 +112,19 @@ resource partnerLink 'Microsoft.Resources/deployments@2021-04-01' = if (!empty(p
   })
 }
 
-resource networkManager 'Microsoft.Network/networkManagers@2024-05-01' = {
+resource networkManager 'Microsoft.Network/networkManagers@2024-07-01' = {
   name: name
   location: location
   tags: !empty(tags) ? tags : null
   properties: {
-    description: !empty(description) ? description : null
-    networkManagerScopes: networkManagerScopes
-    networkManagerScopeAccesses: networkManagerScopeAccesses
+    description: networkManagerConfig.?description ?? ''
+    networkManagerScopes: {
+      managementGroups: []
+      subscriptions: networkManagerConfig.?networkManagerScopes.?subscriptions ?? []
+    }
+    networkManagerScopeAccesses: !empty(networkManagerConfig.?networkManagerScopeAccesses)
+      ? networkManagerConfig.?networkManagerScopeAccesses
+      : null
   }
 }
 
@@ -147,6 +138,7 @@ resource networkManager_lock 'Microsoft.Authorization/locks@2020-05-01' = if (!e
   }
   scope: networkManager
 }
+
 resource networkManager_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [
   for (diagnosticSetting, index) in (diagnosticSettings ?? []): {
     name: diagnosticSetting.?name ?? '${name}-diagnosticSettings'
@@ -249,7 +241,6 @@ module verifierWorkspaceModules './verifierWorkspace/main.bicep' = [for (config,
     verifierWorkspace: config
   }
 }]
-
 
 // ================//
 // Outputs         //

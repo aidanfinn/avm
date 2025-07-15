@@ -22,7 +22,7 @@ param networkGroup networkGroupType
 resource networkGroupModule 'Microsoft.Network/networkManagers/networkGroups@2024-05-01' = {
   name: '${networkManagerName}/${networkGroup.name}'
   properties: {
-    description: networkGroup.?description ?? null
+    description: networkGroup.?description ?? ''
     memberType: networkGroup.memberType
   }
 }

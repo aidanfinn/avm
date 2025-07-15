@@ -22,7 +22,7 @@ param verfierWorkspaceName string
 resource intents 'Microsoft.Network/networkManagers/verifierWorkspaces/reachabilityAnalysisIntents@2024-07-01' = {
   name: '${verfierWorkspaceName}}/${intentConfig.name}'
   properties: {
-    description: intentConfig.?description ?? null
+    description: intentConfig.?description ?? ''
     destinationResourceId: intentConfig.destinationResourceId
     ipTraffic: intentConfig.ipTraffic
     sourceResourceId: intentConfig.sourceResourceId

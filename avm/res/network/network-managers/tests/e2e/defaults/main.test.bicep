@@ -58,6 +58,12 @@ module testDeployment '../../../main.bicep' = [
       name: '${namePrefix}${serviceShort}${iteration}'
       location: resourceLocation
       tags: mainTags
+      networkManagerConfig: {
+        name: 'mainDeploymentNamePrefix'
+        networkManagerScopes: {
+          subscriptions: [subscription().id]
+        }
+      }
     }
   }
 ]

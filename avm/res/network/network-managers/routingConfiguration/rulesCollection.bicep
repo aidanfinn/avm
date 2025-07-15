@@ -19,13 +19,13 @@ param ruleCollection routingConfigurationRuleCollectionType
 // Deployments     //
 // ================//
 
-resource ruleCollectionModule 'Microsoft.Network/networkManagers/routingConfigurations/ruleCollections@2024-09-01-preview' = {
+resource ruleCollectionModule 'Microsoft.Network/networkManagers/routingConfigurations/ruleCollections@2024-05-01' = {
   name: '${routingConfigName}/${ruleCollection.name}'
   properties: {
     appliesTo: ruleCollection.?appliesTo ?? []
     description: ruleCollection.?description ?? ''
     disableBgpRoutePropagation: ruleCollection.disableBgpRoutePropagation ?? 'True'
-    peeringRoutePropagationRules: ruleCollection.?peeringRoutePropagationRules ?? []
+    //peeringRoutePropagationRules: ruleCollection.?peeringRoutePropagationRules ?? []
   }
 }
 

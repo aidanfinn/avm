@@ -141,13 +141,10 @@ module testDeployment '../../../main.bicep' = [
     scope: resourceGroup
     name: '${uniqueString(deployment().name, resourceLocation)}-test-${serviceShort}-${iteration}'
     params: {
-      name: mainDeploymentNamePrefix
+      name: '${mainDeploymentNamePrefix}${iteration}'
       partnerLinkId: partnerLinkId
       location: resourceLocation
-      description: mainDescription
       tags: mainTags
-      networkManagerScopes: networkManagerScopes
-      networkManagerScopeAccesses: networkManagerScopeAccesses
       ipamPools: ipamPools
       networkGroups: nestedDependencies.outputs.spokeVnetResourceIds
       diagnosticSettings: [
@@ -164,6 +161,12 @@ module testDeployment '../../../main.bicep' = [
           workspaceResourceId: diagnosticDependencies.outputs.logAnalyticsWorkspaceResourceId
         }
       ]
+      networkManagerConfig: {
+        name: mainDeploymentNamePrefix
+        description: 'This is a test deployment for WAF-aligned Network Manager'
+        networkManagerScopes: { subscriptions: [subscription().id] }
+        networkManagerScopeAccesses: networkManagerScopeAccesses
+      }
     }
   }
 ]
