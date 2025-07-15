@@ -1,5 +1,7 @@
 // Microsoft.Network/networkManagers/securityAdminConfigurations@2024-07-01
 
+import { addressPrefixType } from './networkManagers.bicep'
+
 @export()
 @sys.description('Defines the structure of a Security Admin Configuration.')
 type securityAdminConfigurationType = {
@@ -77,6 +79,8 @@ type securityAdminConfigurationRulePropertiesType = {
   direction: 'Inbound' | 'Outbound'
 
   @description('Mandatory. Indicates the priority of the rule. Must be an integer between 1 and 4096.')
+  @minValue(1)
+  @maxValue(4096)
   priority: int
 
   @sys.description('Mandatory. The protocol for the rule. Ah | Any | Esp | Icmp | Tcp | Udp.') 
@@ -87,10 +91,4 @@ type securityAdminConfigurationRulePropertiesType = {
 
   @sys.description('Optional. The source address prefixes. CIDR or destination IP ranges.')
   sources: addressPrefixType[]?
-}
-
-@sys.description('Defines an address prefix and its type.')
-type addressPrefixType = {
-  addressPrefix: string
-  addressPrefixType: 'IPPrefix' | 'NetworkGroup' | 'ServiceTag'
 }

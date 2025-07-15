@@ -1,6 +1,6 @@
 // Microsoft.Network/networkManagers/routingConfigurations@2024-09-01-preview
 
-import { diagnosticSettingFullType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
+import { addressPrefixType } from './networkManagers.bicep'
 
 @export()
 @sys.description('Defines the structure of a routing configuration.')
@@ -70,12 +70,6 @@ type routingConfigurationRuleType = {
 
   @sys.description('The list of next hop configurations for the rule.')
   nextHop: routingConfigurationNextHopType?
-}
-
-@sys.description('Defines an address prefix and its type.')
-type addressPrefixType = {
-  addressPrefix: string
-  addressPrefixType: 'IPPrefix' | 'NetworkGroup' | 'ServiceTag'
 }
 
 @export()
