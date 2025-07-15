@@ -1,4 +1,4 @@
-// Microsoft.Network/networkManagers
+// Microsoft.Network/networkManagers@2024-07-01
 
 @export()
 type networkManagersType = {
@@ -22,4 +22,13 @@ type networkManagerScopesType = {
 
   @sys.description('List of subscriptions.')
   subscriptions: string[]?
+}
+
+// Common types for network managers
+
+@export()
+@sys.description('Defines an address prefix and its type.')
+type addressPrefixType = {
+  addressPrefix: string
+  addressPrefixType: 'IPPrefix' | 'NetworkGroup' | 'ServiceTag'
 }

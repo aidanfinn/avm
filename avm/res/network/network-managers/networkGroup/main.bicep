@@ -11,7 +11,7 @@ metadata description = 'Deploys one or more Network Groups for Azure Network Man
 @sys.description('Name of the parent Network Manager resource.')
 param networkManagerName string
 
-import { networkGroupType } from '../types/network-managers-types.bicep'
+import { networkGroupType } from '../types/networkGroups.bicep'
 @sys.description('The Network Group to deploy.')
 param networkGroup networkGroupType
 

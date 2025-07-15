@@ -11,7 +11,7 @@ metadata description = 'Deploys a Rule Collection to a Routing Configuration in 
 @sys.description('The name of the parent Routing Configuration in Azure Network Manager.')
 param routingConfigName string
 
-import { routingConfigurationRuleCollectionType } from '../types/network-managers-types.bicep'
+import { routingConfigurationRuleCollectionType } from '../types/routingConfigurations.bicep'
 @sys.description('The Rule Collection to deploy.')
 param ruleCollection routingConfigurationRuleCollectionType
 

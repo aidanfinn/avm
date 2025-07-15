@@ -11,7 +11,7 @@ metadata description = 'Deploys a Routing Configuration for Azure Network Manage
 @sys.description('The name of the parent Azure Network Manager.')
 param networkManagerName string
 
-import { routingConfigurationType } from '../types/network-managers-types.bicep'
+import { routingConfigurationType } from '../types/routingConfigurations.bicep'
 @sys.description('The routing configuration to deploy.')
 param routingConfiguration routingConfigurationType
 

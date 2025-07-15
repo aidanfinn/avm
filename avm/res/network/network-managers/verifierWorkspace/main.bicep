@@ -12,7 +12,7 @@ metadata description = 'Deploys a Verifier Workspace and optional reachability a
 @description('The name of the parent Network Manager resource.')
 param networkManagerName string
 
-import { verifierWorkspaceType } from '../types/network-managers-types.bicep'
+import { verifierWorkspaceType } from '../types/verifierWorkspaces.bicep'
 @description('The Verifier Workspace resource to deploy.')
 param verifierWorkspace verifierWorkspaceType
 

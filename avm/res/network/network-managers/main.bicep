@@ -38,23 +38,23 @@ import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.5
 @sys.description('Optional. Array of role assignments to create.')
 param roleAssignments roleAssignmentType[]?
 
-import { ipamPoolType } from './types/network-managers-types.bicep'
+import { ipamPoolType } from './types/ipamPools.bicep'
 @sys.description('Optional. List of IPAM pools to create under the Network Manager.')
 param ipamPools ipamPoolType[] = []
 
-import { networkGroupType } from './types/network-managers-types.bicep'
+import { networkGroupType } from './types/networkGroups.bicep'
 @sys.description('Optional. List of network groups to create under the Network Manager.')
 param networkGroups networkGroupType[] = []
 
-import { connectivityConfigurationType } from './types/network-managers-types.bicep'
+import { connectivityConfigurationType } from './types/connectivityConfigurations.bicep'
 @sys.description('An array of connectivity configurations to deploy.')
 param connectivityConfigurations connectivityConfigurationType[] = []
 
-import { routingConfigurationType } from './types/network-managers-types.bicep'
+import { routingConfigurationType } from './types/routingConfigurations.bicep'
 @sys.description('An array of routing configurations to deploy under the Network Manager.')
 param routingConfigurations routingConfigurationType[] = []
 
-import { verifierWorkspaceType } from './types/network-managers-types.bicep'
+import { verifierWorkspaceType } from './types/verifierWorkspaces.bicep'
 @sys.description('An array of routing configurations to deploy under the Network Manager.')
 param verifierWorkspaces verifierWorkspaceType[] = []
 

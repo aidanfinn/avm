@@ -8,7 +8,7 @@ metadata description = 'Deploys an Intent for a Verifier Workspace in Azure Netw
 // Parameters    //
 // ============= //
 
-import { verifierWorkspaceReachabilityAnalysisIntents } from '../types/network-managers-types.bicep'
+import { verifierWorkspaceReachabilityAnalysisIntents } from '../types/verifierWorkspaces.bicep'
 @description('Mandatory. The Verifier Workspace resource to deploy.')
 param intentConfig verifierWorkspaceReachabilityAnalysisIntents
 
