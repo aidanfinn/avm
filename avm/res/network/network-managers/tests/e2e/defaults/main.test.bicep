@@ -21,7 +21,7 @@ param resourceLocation string = deployment().location
 param serviceShort string = 'nvnmin'
 
 @description('Optional. A token to inject into the name of each resource.')
-param namePrefix string = take(toLower(uniqueString(newGuid())), 12)
+param namePrefix string = 'netmantest'
 
 @description('Optional. A timestamp to inject into the tags of each resource.')
 param timestamp string = utcNow()
@@ -55,7 +55,7 @@ module testDeployment '../../../main.bicep' = [
     scope: resourceGroup
     name: '${uniqueString(deployment().name, resourceLocation)}-test-${serviceShort}-${iteration}'
     params: {
-      name: '${namePrefix}${serviceShort}${iteration}'
+      name: '${namePrefix}${serviceShort}'
       location: resourceLocation
       tags: mainTags
       networkManagerConfig: {

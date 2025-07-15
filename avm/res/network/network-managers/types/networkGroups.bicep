@@ -15,15 +15,8 @@ type networkGroupType = {
   description: string?
 
   @sys.description('The type of the group member.')
-  memberType: 'Static' | 'Dynamic'
+  memberType: 'Subnet' | 'VirtualNetwork'
 
   @sys.description('The static list of member resources for the network group.')
-  staticMemberResourceIds: networkGroupStaticMemberResourceType[]?
-}
-
-@export()
-@sys.description('Defines a static member resource of a network group.')
-type networkGroupStaticMemberResourceType = {
-  @sys.description('The resource ID of the static member to be added to the network group.')
-  resourceId: string
+  staticMemberResourceIds: string[]?
 }

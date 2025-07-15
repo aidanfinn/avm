@@ -3,8 +3,8 @@
 
 targetScope = 'subscription'
 
-metadata name = 'WAF-aligned'
-metadata description = 'Deploys the module aligned with Azure Well-Architected Framework best practices.'
+metadata name = 'Using only defaults'
+metadata description = 'This instance deploys the module with the minimum set of required parameters.'
 
 // ========== //
 // Parameters //
@@ -12,50 +12,16 @@ metadata description = 'Deploys the module aligned with Azure Well-Architected F
 
 @description('Optional. The name of the resource group to deploy for testing purposes.')
 @maxLength(90)
-param resourceGroupName string = 'test-virtual-networks-basic-rg'
+param resourceGroupName string = toLower(take(uniqueString(subscription().id, resourceLocation), 10))
 
 @description('Optional. The location to deploy resources to.')
 param resourceLocation string = deployment().location
 
-@description('Optional. A short identifier for the kind of deployment. Should be kept short to not run into resource-name length-constraints.')
-param serviceShort string = 'nvgmwaf'
-
 @description('Optional. A token to inject into the name of each resource.')
-param namePrefix string = take(toLower(uniqueString(newGuid())), 12)
+param namePrefix string = 'netmantest'
 
 @description('Optional. A timestamp to inject into the tags of each resource.')
 param timestamp string = utcNow()
-
-// -- Parameters for nestedDependencies module --
-@description('Name for the virtual network to create in nested dependencies.')
-param virtualNetworkName string = 'dep-${namePrefix}-vnet-${serviceShort}'
-
-@description('Name for the local network gateway to create in nested dependencies.')
-param localNetworkGatewayName string = 'dep-${namePrefix}-lng-${serviceShort}'
-
-// -- Parameters for diagnosticDependencies module --
-@description('Storage account name for diagnostics.')
-@maxLength(24)
-param storageAccountName string = 'dep${namePrefix}diasa${serviceShort}01'
-
-@description('Log Analytics Workspace name for diagnostics.')
-param logAnalyticsWorkspaceName string = 'dep-${namePrefix}-law-${serviceShort}'
-
-@description('Event Hub Namespace name for diagnostics.')
-param eventHubNamespaceName string = 'dep-${namePrefix}-evhns-${serviceShort}'
-
-@description('Event Hub name inside the namespace for diagnostics.')
-param eventHubNamespaceEventHubName string = 'dep-${namePrefix}-evhns-${serviceShort}'
-
-// -- Parameters for main test deployment module --
-@description('Name prefix for the main deployment module.')
-param mainDeploymentNamePrefix string = '${namePrefix}${serviceShort}001'
-
-@description('Partner Link ID (GUID) for main deployment.')
-param partnerLinkId string = 'cca1ef9c-c4b1-4c3d-8973-7e5341ab6792'
-
-@description('Description for the main deployment.')
-param mainDescription string = 'Test deployment for WAF-aligned Network Manager'
 
 @description('Tags to apply to main deployment resources.')
 param mainTags object = {
@@ -64,69 +30,44 @@ param mainTags object = {
   timestamp: timestamp
 }
 
-@description('Network Manager scopes for main deployment.')
-param networkManagerScopes object = {
-  managementGroups: [
-    '/providers/Microsoft.Management/managementGroups/${tenant().tenantId}'
-  ]
-  subscriptions: []
-}
-
-@description('Network Manager scope accesses for main deployment.')
-param networkManagerScopeAccesses array = [
-  'Connectivity'
-  'SecurityAdmin'
-  'Routing'
-]
-
-@description('IPAM pools for main deployment.')
-param ipamPools array = [
-  {
-    name: 'testIpamPool1'
-    addressPrefixes: [
-      '10.1.0.0/16'
-    ]
-    description: 'Test IPAM Pool1 for WAF-aligned Network Manager'
-    displayName: 'Test IPAM Pool1'
-  }
-  {
-    name: 'testIpamPool2'
-    addressPrefixes: [
-      '10.2.0.0/16'
-    ]
-    description: 'Test IPAM Pool2 for WAF-aligned Network Manager'
-    displayName: 'Test IPAM Pool2'
-  }
-]
-
 // ============ //
 // Dependencies //
 // ============ //
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2025-04-01' = {
+// General resources
+// =================
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
   location: resourceLocation
   tags: mainTags
 }
 
-module nestedDependencies 'dependencies.bicep' = {
+// ============== //
+// Test Setup     //
+// ============== //
+
+// Dependencies
+// ============
+
+module nestedDependencies './dependencies.bicep' = {
   scope: resourceGroup
   name: '${uniqueString(deployment().name, resourceLocation)}-nestedDependencies'
   params: {
     location: resourceLocation
-    virtualNetworkName: virtualNetworkName
-    localNetworkGatewayName: localNetworkGatewayName
   }
 }
 
-module diagnosticDependencies 'diagnostic.dependencies.bicep' = {
+// Diagnostics
+// ===========
+
+module diagnosticDependencies './diagnostic.dependencies.bicep' = {
   scope: resourceGroup
   name: '${uniqueString(deployment().name, resourceLocation)}-diagnosticDependencies'
   params: {
-    storageAccountName: storageAccountName
-    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
-    eventHubNamespaceName: eventHubNamespaceName
-    eventHubNamespaceEventHubName: eventHubNamespaceEventHubName
+    storageAccountName: take('dep${resourceGroupName}diasa01', 24)
+    logAnalyticsWorkspaceName: 'dep-${resourceGroupName}-law'
+    eventHubNamespaceEventHubName: 'dep-${resourceGroupName}-evh'
+    eventHubNamespaceName: 'dep-${resourceGroupName}-evhns'
     location: resourceLocation
   }
 }
@@ -139,34 +80,67 @@ module diagnosticDependencies 'diagnostic.dependencies.bicep' = {
 module testDeployment '../../../main.bicep' = [
   for iteration in ['init', 'idem']: {
     scope: resourceGroup
-    name: '${uniqueString(deployment().name, resourceLocation)}-test-${serviceShort}-${iteration}'
+    name: '${uniqueString(deployment().name, resourceLocation)}-test-${iteration}'
     params: {
-      name: '${mainDeploymentNamePrefix}${iteration}'
-      partnerLinkId: partnerLinkId
+      name: '${namePrefix}-nm'
       location: resourceLocation
       tags: mainTags
-      ipamPools: ipamPools
-      networkGroups: nestedDependencies.outputs.spokeVnetResourceIds
+      networkManagerConfig: {
+        name: 'mainDeploymentNamePrefix'
+        networkManagerScopes: {
+          managementGroups: []
+          subscriptions: [subscription().id]
+        }
+        description: 'This is a test deployment for the Network Manager module using all options.'
+      }
       diagnosticSettings: [
         {
           name: 'customSetting'
-          metricCategories: [
-            {
-              category: 'AllMetrics'
-            }
-          ]
           eventHubName: diagnosticDependencies.outputs.eventHubNamespaceEventHubName
           eventHubAuthorizationRuleResourceId: diagnosticDependencies.outputs.eventHubAuthorizationRuleId
           storageAccountResourceId: diagnosticDependencies.outputs.storageAccountResourceId
           workspaceResourceId: diagnosticDependencies.outputs.logAnalyticsWorkspaceResourceId
         }
       ]
-      networkManagerConfig: {
-        name: mainDeploymentNamePrefix
-        description: 'This is a test deployment for WAF-aligned Network Manager'
-        networkManagerScopes: { subscriptions: [subscription().id] }
-        networkManagerScopeAccesses: networkManagerScopeAccesses
-      }
+      ipamPools: [
+        {
+          name: 'ipamPool1'
+          addressPrefixes: ['10.1.0.0/16']
+          description: 'IPAM test pool 1'
+          displayName: 'IPAM Pool 1'
+          tags: union(mainTags, {
+            poolPurpose: 'ipamPool1'
+          })
+        }
+        {
+          name: 'ipamPool2'
+          addressPrefixes: ['10.2.0.0/16']
+          description: 'IPAM test pool 2'
+          displayName: 'IPAM Pool 2'
+          tags: union(mainTags, {
+            poolPurpose: 'ipamPool2'
+          })
+        }
+      ]
+      networkGroups: [
+        {
+          name: 'networkGroup1'
+          location: resourceLocation
+          description: 'Network Group 1'
+          memberType: 'VirtualNetwork'
+          staticMemberResourceIds: [
+            nestedDependencies.outputs.spokeVnetResourceIds[0].id
+            nestedDependencies.outputs.spokeVnetResourceIds[1].id
+            nestedDependencies.outputs.spokeVnetResourceIds[2].id
+          ]
+        }
+        {
+          name: 'networkGroup2'
+          location: resourceLocation
+          description: 'Network Group 2'
+          memberType: 'VirtualNetwork'
+        }
+      ]
     }
   }
 ]
@@ -175,6 +149,4 @@ module testDeployment '../../../main.bicep' = [
 // Outputs        //
 // ============== //
 
-output nestedDependenciesOutputs object = nestedDependencies.outputs
-output diagnosticDependenciesOutputs object = diagnosticDependencies.outputs
 output result object = testDeployment[0].outputs

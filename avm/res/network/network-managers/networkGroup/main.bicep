@@ -15,11 +15,22 @@ import { networkGroupType } from '../types/networkGroups.bicep'
 @sys.description('The Network Group to deploy.')
 param networkGroup networkGroupType
 
+// ============= //
+// Variables     //
+// ============= //
+
+// Normalize to object array with 'resourceId' property
+var normalizedStaticMembers = [
+  for item in (networkGroup.?staticMemberResourceIds ?? []): {
+    resourceId: item
+  }
+]
+
 // ================//
 // Deployments     //
 // ================//
 
-resource networkGroupModule 'Microsoft.Network/networkManagers/networkGroups@2024-05-01' = {
+resource networkGroupResource 'Microsoft.Network/networkManagers/networkGroups@2024-05-01' = {
   name: '${networkManagerName}/${networkGroup.name}'
   properties: {
     description: networkGroup.?description ?? ''
@@ -27,17 +38,19 @@ resource networkGroupModule 'Microsoft.Network/networkManagers/networkGroups@202
   }
 }
 
-resource staticMembers 'Microsoft.Network/networkManagers/networkGroups/staticMembers@2024-05-01' = [for (member, i) in networkGroup.?staticMemberResourceIds ?? []: {
-  name: '${networkGroup.name}-member${i}'
-  parent: networkGroupModule
-  properties: {
-    resourceId: member
+resource staticMembers 'Microsoft.Network/networkManagers/networkGroups/staticMembers@2024-07-01' = [
+  for (member, i) in normalizedStaticMembers: {
+    name: '${networkGroup.name}-static-${i}'
+    parent: networkGroupResource
+    properties: {
+      resourceId: member.resourceId
+    }
   }
-}]
+]
 
 // ================//
 // Outputs         //
 // ================//
 
-output id string = networkGroupModule.id
-output name string = networkGroupModule.name
+output id string = networkGroupResource.id
+output name string = networkGroupResource.name
