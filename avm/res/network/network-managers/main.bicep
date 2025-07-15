@@ -118,10 +118,17 @@ resource networkManager 'Microsoft.Network/networkManagers@2024-07-01' = {
   tags: !empty(tags) ? tags : null
   properties: {
     description: networkManagerConfig.?description ?? ''
-    networkManagerScopes: {
-      managementGroups: []
-      subscriptions: networkManagerConfig.?networkManagerScopes.?subscriptions ?? []
-    }
+    networkManagerScopes: empty(networkManagerConfig.networkManagerScopes.?managementGroups ?? []) && empty(networkManagerConfig.networkManagerScopes.?subscriptions ?? [])
+      ? {
+          // No configuration was provided so one must be created
+          managementGroups: []
+          subscriptions: [subscription().id] // Use the current subscription as the default scope
+        }
+      : {
+          // A configuration has been provided and will be used as supplied
+          managementGroups: networkManagerConfig.networkManagerScopes.?managementGroups ?? []
+          subscriptions: networkManagerConfig.networkManagerScopes.?subscriptions ?? []
+        }
     networkManagerScopeAccesses: !empty(networkManagerConfig.?networkManagerScopeAccesses)
       ? networkManagerConfig.?networkManagerScopeAccesses
       : null
@@ -170,11 +177,7 @@ resource networkManager_diagnosticSettings 'Microsoft.Insights/diagnosticSetting
 
 resource networkManager_roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
   for (roleAssignment, index) in (formattedRoleAssignments ?? []): {
-    name: roleAssignment.?name ?? guid(
-      networkManager.id,
-      roleAssignment.principalId,
-      roleAssignment.roleDefinitionId
-    )
+    name: roleAssignment.?name ?? guid(networkManager.id, roleAssignment.principalId, roleAssignment.roleDefinitionId)
     properties: {
       roleDefinitionId: roleAssignment.roleDefinitionId
       principalId: roleAssignment.principalId
@@ -188,59 +191,69 @@ resource networkManager_roleAssignments 'Microsoft.Authorization/roleAssignments
   }
 ]
 
-module ipamPoolModules './ipamPool/main.bicep' = [for (pool, i) in (ipamPools ?? []): {
-  name: '${take(name, 50)}-ipamPool-${i}'
-  params: {
-    networkManagerName: networkManager.name
-    location: pool.?location ?? location
-    ipamPool: {
-      name: pool.name
-      addressPrefixes: pool.addressPrefixes
-      description: pool.?description ?? ''
-      displayName: pool.?displayName ?? pool.name
-      parentPoolName: pool.?parentPoolName ?? ''
-      tags: pool.?tags ?? {}
+module ipamPoolModules './ipamPool/main.bicep' = [
+  for (pool, i) in (ipamPools ?? []): {
+    name: '${take(name, 50)}-ipamPool-${i}'
+    params: {
+      networkManagerName: networkManager.name
+      location: pool.?location ?? location
+      ipamPool: {
+        name: pool.name
+        addressPrefixes: pool.addressPrefixes
+        description: pool.?description ?? ''
+        displayName: pool.?displayName ?? pool.name
+        parentPoolName: pool.?parentPoolName ?? ''
+        tags: pool.?tags ?? {}
+      }
     }
   }
-}]
+]
 
-module networkGroupModules 'networkGroup/main.bicep' = [for (group, i) in (networkGroups ?? []): {
-  name: '${take(name, 37)}-networkGroup-${i}'
-  params: {
-    networkManagerName: networkManager.name
-    networkGroup: group
+module networkGroupModules 'networkGroup/main.bicep' = [
+  for (group, i) in (networkGroups ?? []): {
+    name: '${take(name, 37)}-networkGroup-${i}'
+    params: {
+      networkManagerName: networkManager.name
+      networkGroup: group
+    }
   }
-}]
+]
 
-module connectivityConfigurationsModule './connectivityConfiguration/main.bicep' = [for (config, i) in (connectivityConfigurations ?? []): {
-  name: '${take(name, 37)}-connectivity-${i}'
-  params: {
-    networkManagerName: networkManager.name
-    connectivityConfiguration: config
+module connectivityConfigurationsModule './connectivityConfiguration/main.bicep' = [
+  for (config, i) in (connectivityConfigurations ?? []): {
+    name: '${take(name, 37)}-connectivity-${i}'
+    params: {
+      networkManagerName: networkManager.name
+      connectivityConfiguration: config
+    }
+    dependsOn: [
+      networkGroupModules
+    ]
   }
-  dependsOn: [
-    networkGroupModules
-  ]
-}]
+]
 
-module routingConfigurationModules './routingConfiguration/main.bicep' = [for (config, i) in (routingConfigurations ?? []): {
-  name: '${take(name, 37)}-routing-${i}'
-  params: {
-    networkManagerName: networkManager.name
-    routingConfiguration: config
+module routingConfigurationModules './routingConfiguration/main.bicep' = [
+  for (config, i) in (routingConfigurations ?? []): {
+    name: '${take(name, 37)}-routing-${i}'
+    params: {
+      networkManagerName: networkManager.name
+      routingConfiguration: config
+    }
+    dependsOn: [
+      networkGroupModules
+    ]
   }
-  dependsOn: [
-    networkGroupModules
-  ]
-}]
+]
 
-module verifierWorkspaceModules './verifierWorkspace/main.bicep' = [for (config, i) in (verifierWorkspaces ?? []): {
-  name: '${take(name, 37)}-verifier-${i}'
-  params: {
-    networkManagerName: networkManager.name
-    verifierWorkspace: config
+module verifierWorkspaceModules './verifierWorkspace/main.bicep' = [
+  for (config, i) in (verifierWorkspaces ?? []): {
+    name: '${take(name, 37)}-verifier-${i}'
+    params: {
+      networkManagerName: networkManager.name
+      verifierWorkspace: config
+    }
   }
-}]
+]
 
 // ================//
 // Outputs         //
