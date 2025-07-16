@@ -3,29 +3,28 @@
 @export()
 @sys.description('Defines the structure of a connectivity configuration.')
 type connectivityConfigurationType = {
-  @sys.description('The name of the connectivity configuration.')
+  @sys.description('Mandatory. The name of the connectivity configuration.')
   @minLength(1)
   name: string
 
-  @sys.description('An array of group resource IDs to which the configuration applies.')
-  appliesToGroups: array
+  @sys.description('Mandatory. An array of group resource IDs to which the configuration applies.')
+  appliesToGroups: connectivityConfigurationAppliesToGroupsType[]
 
-  @sys.description('Defines the capabilities of a connectivity configuration in Azure Network Manager.')
+  @sys.description('Optional. Defines the capabilities of a connectivity configuration in Azure Network Manager.')
   connectivityCapabilities: connectivityConfigurationCapabilitiesType?
 
-  @sys.description('The connectivity topology (e.g., HubAndSpoke, Mesh).')
+  @sys.description('Optional. The connectivity topology HubAndSpoke | Mesh. Default = HubAndSpoke.')
   connectivityTopology: 'HubAndSpoke' | 'Mesh'
 
-  @sys.description('Indicates whether to delete existing peering configurations when applying this connectivity configuration.')
-  deleteExistingPeering: 'true' | 'false'
-
+  @sys.description('Optional. Indicates whether to delete existing peering configurations when applying this connectivity configuration. Default = False.')
+  deleteExistingPeering: 'True' | 'False'
   @sys.description('The description of the connectivity configuration.')
   description: string
 
-  @sys.description('An array of hub resource IDs.')
+  @sys.description('Optional. An array of hub resource IDs.')
   hubs: connectivityConfigurationHubType[]?
 
-  @sys.description('Flag if global mesh is supported.')
+  @sys.description('Optional. Flag if global mesh is supported. Default = False.')
   isGlobal: 'False' | 'True'
 }
 
@@ -45,9 +44,25 @@ type connectivityConfigurationCapabilitiesType = {
 @export()
 @sys.description('A hub item.')
 type connectivityConfigurationHubType = {
-  @sys.description('Resource Id.')
+  @sys.description('Mandatory. The resource Id of the hub.')
   resourceId: string
 
-  @sys.description('Resource Type.')
-  resourceType: string
+  @sys.description('Mandatory. Hub type: virtualNetwork | virtualHub.')
+  resourceType: 'virtualNetwork' | 'virtualHub'
+}
+
+@export()
+@sys.description('An array of group resource IDs to which the configuration applies.')
+type connectivityConfigurationAppliesToGroupsType = {
+  @sys.description('Mandatory. Group connectivity type.')
+  groupConnectivity: 	'DirectlyConnected' | 'None'
+
+  @sys.description('Optional. Flag if global is supported.')
+  isGlobal: 'False' | 'True'?
+
+  @sys.description('Mandatory. Network group Id.')
+  networkGroupName: string
+
+  @sys.description('Optional. Flag if Hub Virtual Network Gateway or Azure Route Server is used.')
+  useHubGateway: 'False' | 'True'?
 }

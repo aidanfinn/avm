@@ -19,7 +19,7 @@
   @maxLength(80)
   param name string
 
-  @sys.description('Optional tags to apply to the Network Manager resource. Example: { "environment": "production", "project": "networking" }')
+  @sys.description('Optional. Tags to apply to the Network Manager resource. Example: { "environment": "production", "project": "networking" }')
   param tags object = {}
 
   import { networkManagersType } from './types/networkManagers.bicep'
@@ -47,15 +47,15 @@
   param networkGroups networkGroupType[] = []
 
   import { connectivityConfigurationType } from './types/connectivityConfigurations.bicep'
-  @sys.description('An array of connectivity configurations to deploy.')
+  @sys.description('Optional. An array of connectivity configurations to deploy.')
   param connectivityConfigurations connectivityConfigurationType[] = []
 
   import { routingConfigurationType } from './types/routingConfigurations.bicep'
-  @sys.description('An array of routing configurations to deploy under the Network Manager.')
+  @sys.description('Optional. An array of routing configurations to deploy under the Network Manager.')
   param routingConfigurations routingConfigurationType[] = []
 
   import { verifierWorkspaceType } from './types/verifierWorkspaces.bicep'
-  @sys.description('An array of routing configurations to deploy under the Network Manager.')
+  @sys.description('Optional. An array of verifier workspaces to deploy under the Network Manager.')
   param verifierWorkspaces verifierWorkspaceType[] = []
 
   // ================//
@@ -221,6 +221,10 @@
       }
       dependsOn: [
         networkGroupModules
+        ipamPoolModules
+        networkManager_roleAssignments
+        networkManager_diagnosticSettings
+        networkManager_lock
       ]
     }
   ]
@@ -297,7 +301,7 @@
     }
   ]
 
-  @sys.description('An array of objects containing the resource ID and name of each deployed routing configuration.')
+  @sys.description('An array of objects containing the resource ID and name of each deployed verifier workspace.')
   output verifierWorkspaces array = [
     for (i, config) in range(0, length(verifierWorkspaces)): {
       id: verifierWorkspaceModules[i].outputs.id

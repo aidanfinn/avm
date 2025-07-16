@@ -15,40 +15,41 @@ import { connectivityConfigurationType } from '../types/connectivityConfiguratio
 @description('A Connectivity Configuration to deploy.')
 param connectivityConfiguration connectivityConfigurationType
 
-// ============= //
-// Variables     //
-// ============= //
-
-var resolvedConnectivityCapabilities = empty(connectivityConfiguration.?connectivityCapabilities) ? null : {
-  connectedGroupAddressOverlap: connectivityConfiguration.?connectivityCapabilities.connectedGroupAddressOverlap ?? 'Disallowed'
-  connectedGroupPrivateEndpointsScale: connectivityConfiguration.?connectivityCapabilities.connectedGroupPrivateEndpointsScale ?? 'Standard'
-  peeringEnforcement: connectivityConfiguration.?connectivityCapabilities.peeringEnforcement ?? 'Enforced'
-}
-
 // ================//
 // Deployments     //
 // ================//
-
 resource connectivityConfigurationModule 'Microsoft.Network/networkManagers/connectivityConfigurations@2024-07-01' = {
   name: '${networkManagerName}/${connectivityConfiguration.name}'
   properties: {
+    description: connectivityConfiguration.description ?? ''
     connectivityTopology: connectivityConfiguration.connectivityTopology ?? 'HubAndSpoke'
-    deleteExistingPeering: connectivityConfiguration.deleteExistingPeering ?? false
-    isGlobal: connectivityConfiguration.isGlobal ?? false
-
-    // Optional blocks conditionally included
-    ...(empty(connectivityConfiguration.appliesToGroups) ? {} : {
-      appliesToGroups: connectivityConfiguration.appliesToGroups
-    })
-    ...(empty(resolvedConnectivityCapabilities) ? {} : {
-      connectivityCapabilities: resolvedConnectivityCapabilities
-    })
-    ...(empty(connectivityConfiguration.description) ? {} : {
-      description: connectivityConfiguration.description
-    })
-    ...(empty(connectivityConfiguration.?hubs) ? {} : {
-      hubs: connectivityConfiguration.?hubs
-    })
+    hubs: [
+      for hub in (connectivityConfiguration.?hubs ?? []): {
+        resourceType: hub.resourceType == 'virtualHub'
+          ? 'Microsoft.Network/virtualHubs'
+          : 'Microsoft.Network/virtualNetworks'
+        resourceId: hub.resourceId
+      }
+    ]
+    appliesToGroups: [
+      for group in (connectivityConfiguration.?appliesToGroups ?? []):       {
+        networkGroupId: resourceId(
+          'Microsoft.Network/networkManagers/networkGroups',
+          networkManagerName,
+          group.networkGroupName
+        )
+        groupConnectivity: group.groupConnectivity
+        useHubGateway: group.?useHubGateway ?? 'False'
+        isGlobal: group.?isGlobal ?? 'False'
+      }
+    ]
+    deleteExistingPeering: connectivityConfiguration.deleteExistingPeering ?? 'False'
+    isGlobal: connectivityConfiguration.?isGlobal ?? 'False'
+    connectivityCapabilities: {
+      connectedGroupPrivateEndpointsScale: connectivityConfiguration.?connectivityCapabilities.connectedGroupPrivateEndpointsScale ?? 'Standard'
+      connectedGroupAddressOverlap: connectivityConfiguration.?connectivityCapabilities.connectedGroupAddressOverlap ?? 'Allowed'
+      peeringEnforcement: connectivityConfiguration.?connectivityCapabilities.peeringEnforcement ?? 'Unenforced'
+    }
   }
 }
 

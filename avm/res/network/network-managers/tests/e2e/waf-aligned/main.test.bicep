@@ -12,7 +12,7 @@ metadata description = 'This instance deploys the module with the minimum set of
 
 @description('Optional. The name of the resource group to deploy for testing purposes.')
 @maxLength(90)
-param resourceGroupName string = toLower(take(uniqueString(subscription().id, resourceLocation), 10))
+param resourceGroupName string = toLower(take(uniqueString(subscription().id, resourceLocation), 12))
 
 @description('Optional. The location to deploy resources to.')
 param resourceLocation string = deployment().location
@@ -92,6 +92,11 @@ module testDeployment '../../../main.bicep' = [
           subscriptions: [subscription().id]
         }
         description: 'This is a test deployment for the Network Manager module using all options.'
+        networkManagerScopeAccesses: [
+          'Connectivity'
+          'Routing'
+          'SecurityAdmin'     
+        ]
       }
       diagnosticSettings: [
         {
@@ -139,6 +144,34 @@ module testDeployment '../../../main.bicep' = [
           location: resourceLocation
           description: 'Network Group 2'
           memberType: 'VirtualNetwork'
+        }
+      ]
+      connectivityConfigurations: [
+        {
+          name: 'connectivityConfig1'
+          description: 'Connectivity configuration for Network Group 1'
+          connectivityTopology: 'HubAndSpoke'
+          hubs: [
+            {
+              resourceType: 'virtualNetwork'
+              resourceId: '/subscriptions/6fd7f490-4be8-41e2-bbdc-7f52d1d7162c/resourceGroups/dyipwoqdk6g2/providers/Microsoft.Network/virtualNetworks/dep-hub-vnet'
+            }
+          ]
+          appliesToGroups: [
+            {
+              networkGroupName: 'networkGroup1'
+              groupConnectivity: 'None'
+              useHubGateway: 'False'
+              isGlobal: 'False'
+            }
+          ]
+          deleteExistingPeering: 'False'
+          isGlobal: 'False'
+          connectivityCapabilities: {
+            connectedGroupPrivateEndpointsScale: 'Standard'
+            connectedGroupAddressOverlap: 'Allowed'
+            peeringEnforcement: 'Unenforced'
+          }
         }
       ]
     }

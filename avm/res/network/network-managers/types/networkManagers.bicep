@@ -2,33 +2,36 @@
 
 @export()
 type networkManagersType = {
-  @sys.description('The resource name.')
+  @sys.description('Mandatory. The resource name for the Network Manager.')
   name: string
 
-  @sys.description('A description of the network manager.')
+  @sys.description('Optional. A description of the Network Manager.')
   description: string? 
 
-  @sys.description('Scope Access.')
-  networkManagerScopeAccesses: string[]?
+  @sys.description('Optional. Define the features to enable in Network Manager. Connectivity | Routing | SecurityAdmin. Default = None')
+  networkManagerScopeAccesses: ('Connectivity' | 'Routing' | 'SecurityAdmin')[]?
 
-  @sys.description('Scope of Network Manager.')
+  @sys.description('Optional. Define the Management Groups or Subscriptions that the Network Manager will manage. Defeault = current subscription')
   networkManagerScopes: networkManagerScopesType
 }
 
 @export()
 type networkManagerScopesType = {
-  @sys.description('List of management groups.')
+  @sys.description('Optional. List of management groups. Default = none')
   managementGroups: string[]?
 
-  @sys.description('List of subscriptions.')
+  @sys.description('Optional. List of subscriptions. Default = current subscription.')
   subscriptions: string[]?
 }
 
-// Common types for network managers
+// Shared types used by Network Manager sub-resources
 
 @export()
 @sys.description('Defines an address prefix and its type.')
 type addressPrefixType = {
+  @sys.description('Mandatory. The address prefix value.')
   addressPrefix: string
+
+  @sys.description('Mandatory. The type of address prefix. IPPrefix | NetworkGroup | ServiceTag.')
   addressPrefixType: 'IPPrefix' | 'NetworkGroup' | 'ServiceTag'
 }
