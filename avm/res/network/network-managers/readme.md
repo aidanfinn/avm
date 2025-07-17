@@ -3,6 +3,21 @@
 ## Description
 Deploys an Azure Network Manager resource with optional configurations including IPAM Pools, Network Groups, Connectivity Configurations, Routing Configurations, Security Admin Configurations, and Verifier Workspaces. This module adheres to the Azure Verified Modules (AVM) specification.
 
+## Simple Usage
+
+```bicep
+module networkManagerModule 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v1.0' = {
+  name: 'networkManagerModule'
+  params: {
+    name: 'networkManagerModule'
+    networkManagerConfig: {
+      name: 'mycompany-vnm'
+      networkManagerScopes: {}
+    }
+  }
+}
+```
+
 ## Metadata
 ```bicep
 metadata name = 'Network Manager'

@@ -60,9 +60,7 @@ module testDeployment '../../../main.bicep' = [
       tags: mainTags
       networkManagerConfig: {
         name: 'mainDeploymentNamePrefix'
-        networkManagerScopes: {
-         // subscriptions: [subscription().id]
-        }
+        networkManagerScopes: {}
       }
     }
   }
