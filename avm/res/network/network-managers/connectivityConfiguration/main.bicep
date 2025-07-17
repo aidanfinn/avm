@@ -18,6 +18,7 @@ param connectivityConfiguration connectivityConfigurationType
 // ================//
 // Deployments     //
 // ================//
+
 resource connectivityConfigurationModule 'Microsoft.Network/networkManagers/connectivityConfigurations@2024-07-01' = {
   name: '${networkManagerName}/${connectivityConfiguration.name}'
   properties: {

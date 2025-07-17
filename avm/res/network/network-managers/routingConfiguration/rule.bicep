@@ -1,52 +1,48 @@
 // Copyright (c) Cloud Mechanix
 // Licensed under the MIT License.
 
-metadata name = 'Network Manager Routing Rule'
-metadata description = 'Deploys a Rule to a Rules Collection in a Routing Configurations for Azure Network Manager.'
+metadata name = 'Network Manager Network Manager routing Rule.'
+metadata description = 'Deploys a routing Rule in a Rule Collection in a Routing Configuration for Azure Network Manager.'
 
 // ============= //
 // Parameters    //
 // ============= //
 
-@sys.description('Mandatory. The name of the parent Routing Configuration in Azure Network Manager.')
+@sys.description('Mandatory. The name of the parent Rule Collection.')
 param ruleCollectionName string
 
 import { routingConfigurationRuleType } from '../types/routingConfigurations.bicep'
-@sys.description('Mandatory. The Rule to deploy.')
+@sys.description('Mandatory. The routing Rule Collection to deploy.')
 param rule routingConfigurationRuleType
 
 // ================//
 // Deployments     //
 // ================//
 
-resource ruleModule 'Microsoft.Network/networkManagers/routingConfigurations/ruleCollections/rules@2024-05-01' = {
+resource routingRuleResource 'Microsoft.Network/networkManagers/routingConfigurations/ruleCollections/rules@2024-05-01' = {
   name: '${ruleCollectionName}/${rule.name}'
-  properties: union(
-    {
-      description: rule.?description ?? ''
-    },
-    rule.?destination != null
-      ? {
-          destination: rule.?destination
-        }
-      : {},
-    rule.?nextHop != null
-      ? {
-          nextHop: rule.?nextHop
-        }
-      : {}
-  )
+  properties: {
+    description: rule.?description ?? ''
+    destination: {
+      type: 'AddressPrefix'
+      destinationAddress: '0.0.0.0/0'
+    }
+    nextHop: {
+      nextHopType: 'VirtualAppliance'
+      nextHopAddress: '10.1.1.4'
+    }
+  }
 }
+
+// ================//
+// Deployments     //
+// ================//
 
 // ================//
 // Outputs         //
 // ================//
 
-@sys.description('The ID of the deployed rule module.')
-output id string = ruleModule.id
-
-@sys.description('The name of the deployed rule module.')
-output name string = ruleModule.name
+output routingRuleResourceId string = routingRuleResource.id
 
 // =============== //
 //   Definitions   //

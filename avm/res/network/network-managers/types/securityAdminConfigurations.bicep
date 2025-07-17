@@ -1,7 +1,5 @@
 // Microsoft.Network/networkManagers/securityAdminConfigurations@2024-07-01
 
-import { addressPrefixType } from './networkManagers.bicep'
-
 @export()
 @sys.description('Defines the structure of a Security Admin Configuration.')
 type securityAdminConfigurationType = {
@@ -91,4 +89,15 @@ type securityAdminConfigurationRulePropertiesType = {
 
   @sys.description('Optional. The source address prefixes. CIDR or destination IP ranges.')
   sources: addressPrefixType[]?
+}
+
+
+@export()
+@sys.description('Defines an address prefix and its type.')
+type addressPrefixType = {
+  @sys.description('Mandatory. The address prefix value.')
+  addressPrefix: string
+
+  @sys.description('Mandatory. The type of address prefix. IPPrefix | NetworkGroup | ServiceTag.')
+  addressPrefixType: 'IPPrefix' | 'NetworkGroup' | 'ServiceTag'
 }

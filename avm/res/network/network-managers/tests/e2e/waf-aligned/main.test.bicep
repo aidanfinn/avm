@@ -95,12 +95,12 @@ module testDeployment '../../../main.bicep' = [
         networkManagerScopeAccesses: [
           'Connectivity'
           'Routing'
-          'SecurityAdmin'     
+          'SecurityAdmin'
         ]
       }
       diagnosticSettings: [
         {
-          name: 'customSetting'
+          name: 'diagnosticSettings1'
           eventHubName: diagnosticDependencies.outputs.eventHubNamespaceEventHubName
           eventHubAuthorizationRuleResourceId: diagnosticDependencies.outputs.eventHubAuthorizationRuleId
           storageAccountResourceId: diagnosticDependencies.outputs.storageAccountResourceId
@@ -172,6 +172,37 @@ module testDeployment '../../../main.bicep' = [
             connectedGroupAddressOverlap: 'Allowed'
             peeringEnforcement: 'Unenforced'
           }
+        }
+      ]
+      routingConfigurations: [
+        {
+          name: 'routingConfig1'
+          description: 'Routing configuration for Network Group 1'
+          ruleCollections: [
+            {
+              name: 'routingConfig1-ruleCollection1'
+              disableBgpRoutePropagation: 'True'
+              appliesToGroups: [
+                {
+                  networkGroupName: 'networkGroup1'
+                }
+              ]
+              rules: [
+                {
+                  name: 'everywhere'
+                  description: 'Override the default route all traffic everywhere'
+                  destination: {
+                    type: 'AddressPrefix'
+                    destinationAddress: '0.0.0.0/0'
+                  }
+                  nextHop: {
+                    nextHopType: 'VirtualAppliance'
+                    nextHopAddress: '10.1.1.4'
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     }

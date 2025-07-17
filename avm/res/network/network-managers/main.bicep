@@ -221,17 +221,13 @@
       }
       dependsOn: [
         networkGroupModules
-        ipamPoolModules
-        networkManager_roleAssignments
-        networkManager_diagnosticSettings
-        networkManager_lock
       ]
     }
   ]
 
   module routingConfigurationModules './routingConfiguration/main.bicep' = [
     for (config, i) in (routingConfigurations ?? []): {
-      name: '${take(name, 37)}-routing-${i}'
+      name: '${take(name, 37)}-routingConfig-${i}'
       params: {
         networkManagerName: networkManager.name
         routingConfiguration: config

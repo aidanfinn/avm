@@ -26,12 +26,3 @@ type networkManagerScopesType = {
 
 // Shared types used by Network Manager sub-resources
 
-@export()
-@sys.description('Defines an address prefix and its type.')
-type addressPrefixType = {
-  @sys.description('Mandatory. The address prefix value.')
-  addressPrefix: string
-
-  @sys.description('Mandatory. The type of address prefix. IPPrefix | NetworkGroup | ServiceTag.')
-  addressPrefixType: 'IPPrefix' | 'NetworkGroup' | 'ServiceTag'
-}

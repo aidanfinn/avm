@@ -26,10 +26,11 @@ resource routingConfig 'Microsoft.Network/networkManagers/routingConfigurations@
   }
 }
 
-module ruleCollectionsModule 'rulesCollection.bicep' = [for ruleCollection in routingConfiguration.?ruleCollections ?? []: {
-  name: '${routingConfig.name}-${ruleCollection.name}'
+module ruleCollectionModules 'ruleCollection.bicep' = [
+  for (ruleCollection, i) in (routingConfiguration.?ruleCollections ?? []): {
+  name: 'ruleCollectionModules-${i}'
   params: {
-    routingConfigName: routingConfig.name
+    routingConfigurationName: routingConfig.name
     ruleCollection: ruleCollection
   }
 }]
@@ -44,4 +45,3 @@ output name string = routingConfig.name
 // =============== //
 //   Definitions   //
 // =============== //
-
