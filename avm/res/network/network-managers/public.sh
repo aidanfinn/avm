@@ -1,0 +1,1 @@
+az bicep publish --file .\avm\res\network\network-managers\main.bicep --target "br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers:v1.0"
