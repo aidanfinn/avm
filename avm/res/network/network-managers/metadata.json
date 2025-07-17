@@ -2,7 +2,7 @@
     "name": "virtual-networks",
     "description": "Azure Virtual Network Manager",
     "version": {
-        "major": 0,
-        "minor": 3
+        "major": 1,
+        "minor": 0
     }
 }
