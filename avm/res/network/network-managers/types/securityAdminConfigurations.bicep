@@ -53,14 +53,6 @@ type securityAdminConfigurationRuleType = {
   @sys.description('Mandatory. The name of the rule.')
   name: string 
 
-  @sys.description('Optional. The properties of the rule.')
-  properties: securityAdminConfigurationRulePropertiesType
-}
-
-@export()
-@sys.description('Defines the properties of a Security Admin Configuration Rule.')
-type securityAdminConfigurationRulePropertiesType = {
-
   @sys.description('Mandatory. Indicates the access allowed for this particular rule. Allow | AlwaysAllow | Deny.')
   access: 'Allow' | 'AlwaysAllow' | 'Deny'
 
@@ -90,7 +82,6 @@ type securityAdminConfigurationRulePropertiesType = {
   @sys.description('Optional. The source address prefixes. CIDR or destination IP ranges.')
   sources: addressPrefixType[]?
 }
-
 
 @export()
 @sys.description('Defines an address prefix and its type.')

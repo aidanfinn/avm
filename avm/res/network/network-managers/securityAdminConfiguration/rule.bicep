@@ -23,15 +23,15 @@ resource ruleModule 'Microsoft.Network/networkManagers/securityAdminConfiguratio
   name: '${ruleCollectionName}/${rule.name}'
   kind: 'Custom'
   properties: {
-    access: rule.properties.?access
-    description: rule.properties.?description ?? ''
-    destinationPortRanges: rule.properties.?destinationPortRanges ?? []
-    destinations: rule.properties.?destinations ?? []
-    direction: rule.properties.?direction
-    priority: rule.properties.?priority
-    protocol: rule.properties.?protocol
-    sourcePortRanges: rule.properties.?sourcePortRanges ?? []
-    sources: rule.properties.?sources ?? []
+    access: rule.?access
+    description: rule.?description ?? ''
+    destinationPortRanges: rule.?destinationPortRanges ?? []
+    destinations: rule.?destinations ?? []
+    direction: rule.?direction
+    priority: rule.?priority
+    protocol: rule.?protocol
+    sourcePortRanges: rule.?sourcePortRanges ?? []
+    sources: rule.?sources ?? []
   }
 }
 

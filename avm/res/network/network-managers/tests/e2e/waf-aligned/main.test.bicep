@@ -225,19 +225,17 @@ module testDeployment '../../../main.bicep' = [
               rules: [
                 {
                   name: 'deny-badguys'
-                  properties: {
-                    access: 'Deny'
-                    description: 'Deny traffic from bad guys'
-                    direction: 'Inbound'
-                    priority: 1
-                    protocol: 'Any'
-                    sources: [
-                      {
-                        addressPrefix: '129.228.0.0/16'
-                        addressPrefixType: 'IPPrefix'
-                      }
-                    ]
-                  }
+                  access: 'Deny'
+                  description: 'Deny traffic from bad guys'
+                  direction: 'Inbound'
+                  priority: 1
+                  protocol: 'Any'
+                  sources: [
+                    {
+                      addressPrefix: '129.228.0.0/16'
+                      addressPrefixType: 'IPPrefix'
+                    }
+                  ]
                 }
               ]
             }
