@@ -24,16 +24,18 @@ resource verifierWorkspaceResource 'Microsoft.Network/networkManagers/verifierWo
   name: '${networkManagerName}/${verifierWorkspace.name}'
   location: verifierWorkspace.location ?? resourceGroup().location
   tags: verifierWorkspace.?tags ?? null
-  properties: verifierWorkspace.?properties
+  properties: {
+    description: verifierWorkspace.?description ?? ''
+  }
 }
 
-module intentsModule './intents.bicep' = [for intent in verifierWorkspace.?reachabilityAnalysisIntents ?? []: {
-  name: '${networkManagerName}-${intent.name}'
-  params: {
-    intentConfig: intent
-    verfierWorkspaceName: verifierWorkspaceResource.name
-  }
-}]
+// module intentsModule './intents.bicep' = [for intent in verifierWorkspace.?reachabilityAnalysisIntents ?? []: {
+//   name: '${networkManagerName}-${intent.name}'
+//   params: {
+//     intentConfig: intent
+//     verfierWorkspaceName: verifierWorkspaceResource.name
+//   }
+// }]
 
 // ============= //
 // Outputs       //
@@ -45,10 +47,10 @@ output id string = verifierWorkspaceResource.id
 @sys.description('The name of the Verifier Workspace.')
 output name string = verifierWorkspaceResource.name
 
-@sys.description('The rules of the Rule Collection.')
-output reachabilityAnalysisIntents array = [
-  for (i, rule) in range(0, length(verifierWorkspace.?reachabilityAnalysisIntents ?? [])): {
-    id: intentsModule[i].outputs.id
-    name: intentsModule[i].outputs.name
-  }
-]
+// @sys.description('The rules of the Rule Collection.')
+// output reachabilityAnalysisIntents array = [
+//   for (i, rule) in range(0, length(verifierWorkspace.?reachabilityAnalysisIntents ?? [])): {
+//     id: intentsModule[i].outputs.id
+//     name: intentsModule[i].outputs.name
+//   }
+// ]

@@ -224,11 +224,11 @@ module testDeployment '../../../main.bicep' = [
               ]
               rules: [
                 {
-                  name: 'deny-badguys'
+                  name: 'deny-badGuys'
                   access: 'Deny'
                   description: 'Deny traffic from bad guys'
                   direction: 'Inbound'
-                  priority: 1
+                  priority: 10
                   protocol: 'Any'
                   sources: [
                     {
@@ -237,9 +237,40 @@ module testDeployment '../../../main.bicep' = [
                     }
                   ]
                 }
+                {
+                  name: 'allow-selfHostedAgents'
+                  access: 'AlwaysAllow'
+                  description: 'Allow traffic from self-hosted DevOps/GitHub agents'
+                  direction: 'Inbound'
+                  priority: 20
+                  protocol: 'Any'
+                  sources: [
+                    {
+                      addressPrefix: '10.1.10.0/24'
+                      addressPrefixType: 'IPPrefix'
+                    }
+                  ]
+                  destinations: [
+                    {
+                      addressPrefix: '10.1.0.0/16'
+                      addressPrefixType: 'IPPrefix'
+                    }
+                  ]
+                }
               ]
             }
           ]
+        }
+      ]
+      verifierWorkspaces: [
+        {
+          name: 'verifierWorkspace1'
+          description: 'Verifier Workspace for Network Manager Test'
+          location: resourceLocation
+          tags: union(mainTags, {
+            workspacePurpose: 'verifierWorkspace1'
+          })
+          reachabilityAnalysisIntents: []
         }
       ]
     }

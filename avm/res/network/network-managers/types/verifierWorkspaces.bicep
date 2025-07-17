@@ -11,21 +11,14 @@ type verifierWorkspaceType = {
   @description('Mandatory. The Azure region for the resource.')
   location: string
 
-  @sys.description('Optional. Properties of Verifier Workspace resource.')
-  properties: verifierWorkspacePropertiesType
+  @description('Optional. A description of the Verifier Workspace.')
+  description: string
 
   @sys.description('Optional. A dictionary of resource tags to apply to the IPAM pool. Example: { "env": "prod", "costCenter": "1234" }')
   tags: object ?
 
   @sys.description('Optional. Define and test connectivity expectations between resources')
   reachabilityAnalysisIntents: verifierWorkspaceReachabilityAnalysisIntents[]?
-}
-
-@export()
-@sys.description('Properties of Verifier Workspace resource.')
-type verifierWorkspacePropertiesType = {
-  @description('Optional. A description of the Verifier Workspace.')
-  description: string
 }
 
 @export()

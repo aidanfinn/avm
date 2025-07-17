@@ -1,44 +1,53 @@
-# Module: Network Manager IPAM Pool
+# Bicep Module: Network Manager IPAM Pool
 
-This module deploys an IP Address Management (IPAM) pool within an Azure Network Manager, enabling centralized management of IP address allocations for virtual networks. The module is part of the Azure Verified Modules (AVM) initiative, providing standardized and reusable Infrastructure as Code (IaC) for Azure deployments.
+## Module Metadata
 
-> **Note**: This module is intended to be referenced as follows:
-> ```bicep
-> module ipamPool 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers/ipamPool:<version>' = {
->   name: 'ipamPoolDeployment'
->   params: {
->     // Required parameters
->     networkManagerName: '<networkManagerName>'
->     ipamPoolName: '<ipamPoolName>'
->     addressPrefixes: ['<addressPrefix>']
->   }
-> }
-> ```
+- **Name**: Network Manager IPAM Pool
+- **Description**: Deploys an IPAM Pool for Azure Network Manager.
+- **Version**: N/A (no versioning specified in source)
+- **Owner**: Cloud Mechanix
+- **License**: MIT
 
-## Resource Types
-
-| Resource Type | API Version |
-|---------------|-------------|
-| `Microsoft.Network/networkManagers/ipamPools` | 2023-04-01 |
-| `Microsoft.Authorization/locks` | 2020-05-01 |
-| `Microsoft.Authorization/roleAssignments` | 2020-10-01-preview |
+---
 
 ## Parameters
 
-| Parameter Name | Type | Default Value | Required | Description |
-| --- | --- | --- | --- | --- |
-| `networkManagerName` | string |  | Yes | The name of the parent Network Manager resource. |
-| `ipamPoolName` | string |  | Yes | The name of the IPAM pool. Must be unique within the Network Manager. |
-| `location` | string | `resourceGroup().location` | No | The Azure region where the IPAM pool will be deployed. |
-| `addressPrefixes` | array |  | Yes | Array of IP address prefixes (in CIDR notation) to include in the IPAM pool. |
-| `tags` | object | `{}` | No | Tags to apply to the IPAM pool resource. |
-| `lock` | string | `''` | No | Specifies the lock level for the resource. Possible values: `''` (None), `'CanNotDelete'`, `'ReadOnly'`. |
-| `roleAssignments` | array | `[]` | No | Array of role assignments to grant permissions on the IPAM pool. |
-| `enableTelemetry` | bool | `true` | No | Enables or disables usage telemetry for the module. |
+| Name                | Type    | Required | Description                                                 |
+|---------------------|---------|----------|-------------------------------------------------------------|
+| `networkManagerName`| string  | Yes      | The name of the parent Azure Network Manager.               |
+| `location`          | string  | Yes      | The location of the parent resource.                        |
+| `ipamPool`          | object  | Yes      | The IPAM pool configuration to deploy (defined in type `ipamPoolType`). |
 
-### Parameter Usage: `lock`
+---
 
-To apply a resource lock, specify the `lock` parameter as follows:
+## Resources Deployed
 
-```bicep
-lock: 'CanNotDelete'
+### `Microsoft.Network/networkManagers/ipamPools@2024-05-01`
+
+| Property         | Value / Expression                                      |
+|------------------|---------------------------------------------------------|
+| `name`           | `${networkManagerName}/${ipamPool.name}-ipamPool`       |
+| `location`       | `ipamPool.location ?? location`                         |
+| `tags`           | `ipamPool.tags ?? {}`                                   |
+| `properties`     |                                                         |
+| - `addressPrefixes`  | `ipamPool.addressPrefixes`                         |
+| - `description`      | `ipamPool.description ?? ''`                       |
+| - `displayName`      | `ipamPool.displayName ?? ipamPool.name`            |
+| - `parentPoolName`   | `ipamPool.parentPoolName ?? ''`                    |
+
+---
+
+## Outputs
+
+| Name              | Type   | Description                                |
+|-------------------|--------|--------------------------------------------|
+| `id`              | string | The resource ID of the IPAM Pool.          |
+| `name`            | string | The name of the IPAM Pool.                 |
+| `addressPrefixes` | array  | The address prefixes of the IPAM Pool.     |
+
+---
+
+## Notes
+
+- This module expects an external type definition for `ipamPoolType`, which must include properties like `name`, `location`, `tags`, `addressPrefixes`, `description`, `displayName`, and `parentPoolName`.
+- The module supports conditional fallbacks using the null-conditional operator (`?`) for optional values.

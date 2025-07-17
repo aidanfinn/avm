@@ -1,61 +1,58 @@
-# Module: Network Manager Connectivity Configuration
+# Network Manager Connectivity Configuration Module
 
-This module deploys one or more Connectivity Configurations within an Azure Network Manager, enabling the definition of network topologies such as Hub-and-Spoke or Mesh for virtual networks. The module is part of the Azure Verified Modules (AVM) initiative, providing standardized and reusable Infrastructure as Code (IaC) for Azure deployments.
+> **Module Name:** `Network Manager Connectivity Configuration`  
+> **Description:** Deploys a Connectivity Configuration in Azure Network Manager.  
+> **Author:** Cloud Mechanix  
+> **License:** MIT  
 
-> **Note**: This module is intended to be referenced as follows:
-> ```bicep
-> module connectivityConfiguration 'br:cloudmechanixavm.azurecr.io/avm/res/network/network-managers/connectivityConfiguration:<version>' = {
->   name: 'connectivityConfigurationDeployment'
->   params: {
->     // Required parameters
->     networkManagerName: '<networkManagerName>'
->     connectivityConfigurations: [<configurationObject>]
->   }
-> }
-> ```
-
-## Resource Types
-
-| Resource Type | API Version |
-|---------------|-------------|
-| `Microsoft.Network/networkManagers/connectivityConfigurations` | 2024-05-01 |
-| `Microsoft.Authorization/locks` | 2020-05-01 |
-| `Microsoft.Resources/deployments` | 2024-03-01 |
+---
 
 ## Parameters
 
-| Parameter Name | Type | Default Value | Required | Description |
-| --- | --- | --- | --- | --- |
-| `networkManagerName` | string |  | Yes | The name of the parent Network Manager resource. |
-| `connectivityConfigurations` | array |  | Yes | Array of connectivity configurations to deploy. See [Parameter Usage: `connectivityConfigurations`](#parameter-usage-connectivityconfigurations). |
-| `location` | string | `resourceGroup().location` | No | The Azure region where the connectivity configurations will be deployed. |
-| `lock` | string | `''` | No | Specifies the lock level for the connectivity configurations. Possible values: `''` (None), `'CanNotDelete'`, `'ReadOnly'`. |
-| `enableTelemetry` | bool | `true` | No | Enables or disables usage telemetry for the module. |
+| Name                    | Type                                | Required | Description |
+|-------------------------|-------------------------------------|----------|-------------|
+| `networkManagerName`    | `string`                            | ✅       | **Mandatory.** The name of the parent Network Manager resource. |
+| `connectivityConfiguration` | `connectivityConfigurationType` | ✅       | **Mandatory.** A Connectivity Configuration to deploy. |
 
-### Parameter Usage: `connectivityConfigurations`
+---
 
-The `connectivityConfigurations` parameter defines network topologies (e.g., HubAndSpoke, Mesh). Example:
+## Resources Deployed
 
-```bicep
-connectivityConfigurations: [
-  {
-    name: 'hubSpokeConnectivity'
-    appliesToGroups: [
-      {
-        groupConnectivity: 'None'
-        isGlobal: false
-        networkGroupResourceId: '<networkGroupResourceId>'
-        useHubGateway: false
-      }
-    ]
-    connectivityTopology: 'HubAndSpoke'
-    hubs: [
-      {
-        resourceId: '<virtualNetworkResourceId>'
-        resourceType: 'Microsoft.Network/virtualNetworks'
-      }
-    ]
-    deleteExistingPeering: true
-    description: 'Hub and Spoke topology configuration'
-  }
-]
+### Microsoft.Network/networkManagers/connectivityConfigurations
+
+Deploys a connectivity configuration under the specified Azure Network Manager. This resource configures connectivity topology and applies rules to network groups.
+
+**Properties include:**
+
+- `description`: Optional string. Defaults to an empty string if not provided.
+- `connectivityTopology`: Optional. Defaults to `HubAndSpoke`.
+- `hubs`: Array of hubs to use for connectivity.
+  - `resourceType`: Either `Microsoft.Network/virtualHubs` or `Microsoft.Network/virtualNetworks`.
+  - `resourceId`: Resource ID of the hub.
+- `appliesToGroups`: Array of network groups the configuration applies to.
+  - `networkGroupId`: Derived from `networkManagerName` and `networkGroupName`.
+  - `groupConnectivity`: Type of connectivity between members.
+  - `useHubGateway`: Optional, default `False`.
+  - `isGlobal`: Optional, default `False`.
+- `deleteExistingPeering`: Optional, default `False`.
+- `isGlobal`: Optional, default `False`.
+- `connectivityCapabilities`: Optional object:
+  - `connectedGroupPrivateEndpointsScale`: Optional, default `Standard`.
+  - `connectedGroupAddressOverlap`: Optional, default `Allowed`.
+  - `peeringEnforcement`: Optional, default `Unenforced`.
+
+---
+
+## Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The resource ID of the Connectivity Configuration. |
+| `id`   | `string` | The name of the Connectivity Configuration. |
+
+---
+
+## Notes
+
+- This module does **not** create a Network Manager or network groups. These must already exist.
+- The module expects referenced network groups and hub resources to already be deployed and available.
