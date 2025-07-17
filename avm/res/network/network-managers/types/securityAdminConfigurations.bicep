@@ -12,17 +12,17 @@ type securityAdminConfigurationType = {
   description: string?
 
   @sys.description('Optional. Enum list of network intent policy based services to apply: All | AllowRulesOnly | None. Default = None.')
-  applyOnNetworkIntentPolicyBasedServices: ('All' | 'AllowRulesOnly' | 'None')[]
+  applyOnNetworkIntentPolicyBasedServices: ('All' | 'AllowRulesOnly' | 'None')[]?
 
   @sys.description('Optional. Determine update behavior for changes to network groups referenced within the rules in this configuration.: Manual | None. Default = None.')
-  networkGroupAddressSpaceAggregationOption: 'Manual' | 'None'
+  networkGroupAddressSpaceAggregationOption: 'Manual' | 'None'?
 
-  rulesCollections: securityAdminConfigurationRulesCollectionsType[]?
+  ruleCollections: securityAdminConfigurationruleCollectionsType[]?
 } 
 
 @export()
 @sys.description('Defines the Rules Collections of a Security Admin Configuration.')
-type securityAdminConfigurationRulesCollectionsType = {
+type securityAdminConfigurationruleCollectionsType = {
   @minLength(1)
   @maxLength(64)
   @sys.description('Mandatory. The name of the rule collection.')
@@ -42,7 +42,7 @@ type securityAdminConfigurationRulesCollectionsType = {
 @sys.description('An array of network groups that this rule collection applies to.')
 type securityAdminConfigurationAppliesToGroupsType = {
   @sys.description('Mandatory. The ID of the network group to which this rule collection applies.') 
-  networkGroupId: string
+  networkGroupName: string
 }
 
 @export()

@@ -51,6 +51,21 @@ module ruleModule 'rule.bicep' = [
 // Outputs         //
 // ================//
 
+@sys.description('The resource ID of the Rule Collection.')
+output id string = ruleCollectionResource.id
+
+@sys.description('The name of the Rule Collection')
+output name string = ruleCollectionResource.name
+
+@sys.description('The rules of the Rule Collection.')
+output rules array = [
+  for (i, rule) in range(0, length(ruleCollection.?rules ?? [])): {
+    id: ruleModule[i].outputs.id
+    name: ruleModule[i].outputs.name
+  }
+]
+
+
 // =============== //
 //   Definitions   //
 // =============== //

@@ -58,7 +58,10 @@ resource connectivityConfigurationModule 'Microsoft.Network/networkManagers/conn
 // Outputs         //
 // ================//
 
+@sys.description('The resource ID of the Connectivity Configuration.')
 output name string = connectivityConfigurationModule.name
+
+@sys.description('The name of the Connectivity Configuration.')
 output id string = connectivityConfigurationModule.id
 
 // =============== //

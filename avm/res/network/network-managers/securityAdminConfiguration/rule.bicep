@@ -11,7 +11,7 @@ metadata description = 'Deploys a Rule to a Security Admin Rules Collection in a
 @sys.description('Mandatory. The name of the parent Routing Configuration in Azure Network Manager.')
 param ruleCollectionName string
 
-import { securityAdminConfigurationRuleType } from '../types/network-managers-types.bicep'
+import { securityAdminConfigurationRuleType } from '../types/securityAdminConfigurations.bicep'
 @sys.description('Mandatory. The Rule to deploy.')
 param rule securityAdminConfigurationRuleType
 

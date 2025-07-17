@@ -33,5 +33,8 @@ resource intents 'Microsoft.Network/networkManagers/verifierWorkspaces/reachabil
 // Outputs       //
 // ============= //
 
+@sys.description('The resource ID of the deployed intent.')
 output id string = intents.id
+
+@sys.description('The name of the deployed intent.')
 output name string = intents.name

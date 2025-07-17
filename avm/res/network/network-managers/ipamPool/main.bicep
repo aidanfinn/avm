@@ -38,8 +38,13 @@ resource ipamPoolRes 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = 
 // Outputs         //
 // ================//
 
+@sys.description('The resource ID of the IPAM Pool.')
 output id string = ipamPoolRes.id
+
+@sys.description('The name of the IPAM Pool.')
 output name string = ipamPoolRes.name
+
+@sys.description('The display name of the IPAM Pool.')
 output addressPrefixes array = ipamPool.addressPrefixes
 
 // =============== //

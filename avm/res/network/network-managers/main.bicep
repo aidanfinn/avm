@@ -54,6 +54,10 @@
   @sys.description('Optional. An array of routing configurations to deploy under the Network Manager.')
   param routingConfigurations routingConfigurationType[] = []
 
+  import { securityAdminConfigurationType } from './types/securityAdminConfigurations.bicep'
+  @sys.description('The routing configuration to deploy.')
+  param securityAdminConfigurations securityAdminConfigurationType[] = []
+
   import { verifierWorkspaceType } from './types/verifierWorkspaces.bicep'
   @sys.description('Optional. An array of verifier workspaces to deploy under the Network Manager.')
   param verifierWorkspaces verifierWorkspaceType[] = []
@@ -184,7 +188,7 @@
     }
   ]
 
-  module ipamPoolModules './ipamPool/main.bicep' = [
+  module ipamPoolModule './ipamPool/main.bicep' = [
     for (pool, i) in (ipamPools ?? []): {
       name: '${take(name, 50)}-ipamPool-${i}'
       params: {
@@ -202,7 +206,7 @@
     }
   ]
 
-  module networkGroupModules 'networkGroup/main.bicep' = [
+  module networkGroupModule 'networkGroup/main.bicep' = [
     for (group, i) in (networkGroups ?? []): {
       name: '${take(name, 37)}-networkGroup-${i}'
       params: {
@@ -220,12 +224,12 @@
         connectivityConfiguration: config
       }
       dependsOn: [
-        networkGroupModules
+        networkGroupModule
       ]
     }
   ]
 
-  module routingConfigurationModules './routingConfiguration/main.bicep' = [
+  module routingConfigurationModule './routingConfiguration/main.bicep' = [
     for (config, i) in (routingConfigurations ?? []): {
       name: '${take(name, 37)}-routingConfig-${i}'
       params: {
@@ -233,12 +237,25 @@
         routingConfiguration: config
       }
       dependsOn: [
-        networkGroupModules
+        networkGroupModule
       ]
     }
   ]
 
-  module verifierWorkspaceModules './verifierWorkspace/main.bicep' = [
+  module securityAdminConfigurationModule './securityAdminConfiguration/main.bicep' = [
+    for (config, i) in (securityAdminConfigurations ?? []): {
+      name: '${take(name, 20)}-securityAdminConfig-${i}'
+      params: {
+        networkManagerName: networkManager.name
+        securityAdminConfiguration: config
+      }
+      dependsOn: [
+        networkGroupModule
+      ]
+    }
+  ]  
+
+  module verifierWorkspaceModule './verifierWorkspace/main.bicep' = [
     for (config, i) in (verifierWorkspaces ?? []): {
       name: '${take(name, 37)}-verifier-${i}'
       params: {
@@ -267,17 +284,17 @@
   @sys.description('An array of objects containing the resource ID, name, and address prefixes for each deployed IPAM pool.')
   output ipamPools array = [
     for (i, pool) in range(0, length(ipamPools)): {
-      id: ipamPoolModules[i].outputs.id
-      name: ipamPoolModules[i].outputs.name
-      addressPrefixes: ipamPoolModules[i].outputs.addressPrefixes
+      id: ipamPoolModule[i].outputs.id
+      name: ipamPoolModule[i].outputs.name
+      addressPrefixes: ipamPoolModule[i].outputs.addressPrefixes
     }
   ]
 
   @sys.description('An array of objects containing the resource ID and name of each deployed Network Group.')
   output networkGroups array = [
     for (i, group) in range(0, length(networkGroups)): {
-      id: networkGroupModules[i].outputs.id
-      name: networkGroupModules[i].outputs.name
+      id: networkGroupModule[i].outputs.id
+      name: networkGroupModule[i].outputs.name
     }
   ]
 
@@ -292,16 +309,26 @@
   @sys.description('An array of objects containing the resource ID and name of each deployed routing configuration.')
   output routingConfigurations array = [
     for (i, config) in range(0, length(routingConfigurations)): {
-      id: routingConfigurationModules[i].outputs.id
-      name: routingConfigurationModules[i].outputs.name
+      id: routingConfigurationModule[i].outputs.id
+      name: routingConfigurationModule[i].outputs.name
+      rules: routingConfigurationModule[i].outputs.ruleCollections
+    }
+  ]
+
+  @sys.description('An array of objects containing the resource ID and name of each deployed routing configuration.')
+  output securityAdminConfigurations array = [
+    for (i, config) in range(0, length(securityAdminConfigurations)): {
+      id: securityAdminConfigurationModule[i].outputs.id
+      name: securityAdminConfigurationModule[i].outputs.name
+      rules: securityAdminConfigurationModule[i].outputs.ruleCollections
     }
   ]
 
   @sys.description('An array of objects containing the resource ID and name of each deployed verifier workspace.')
   output verifierWorkspaces array = [
     for (i, config) in range(0, length(verifierWorkspaces)): {
-      id: verifierWorkspaceModules[i].outputs.id
-      name: verifierWorkspaceModules[i].outputs.name
+      id: verifierWorkspaceModule[i].outputs.id
+      name: verifierWorkspaceModule[i].outputs.name
     }
   ]
 

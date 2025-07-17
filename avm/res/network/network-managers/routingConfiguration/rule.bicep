@@ -42,7 +42,11 @@ resource routingRuleResource 'Microsoft.Network/networkManagers/routingConfigura
 // Outputs         //
 // ================//
 
-output routingRuleResourceId string = routingRuleResource.id
+@sys.description('The resource ID of the routing Rule.')
+output id string = routingRuleResource.id
+
+@sys.description('The name of the routing Rule.')
+output name string = routingRuleResource.name
 
 // =============== //
 //   Definitions   //

@@ -205,6 +205,45 @@ module testDeployment '../../../main.bicep' = [
           ]
         }
       ]
+      securityAdminConfigurations: [
+        {
+          name: 'securityAdminConfig1'
+          description: 'Security Admin Configuration for Network Group 1'
+          applyOnNetworkIntentPolicyBasedServices: [
+            'None'
+          ]
+          networkGroupAddressSpaceAggregationOption: 'None'
+          ruleCollections: [
+            {
+              name: 'securityAdminConfig1-ruleCollection1'
+              description: 'Rule Collection for Security Admin Configuration 1'
+              appliesToGroups: [
+                {
+                  networkGroupName: 'networkGroup1'
+                }
+              ]
+              rules: [
+                {
+                  name: 'deny-badguys'
+                  properties: {
+                    access: 'Deny'
+                    description: 'Deny traffic from bad guys'
+                    direction: 'Inbound'
+                    priority: 1
+                    protocol: 'Any'
+                    sources: [
+                      {
+                        addressPrefix: '129.228.0.0/16'
+                        addressPrefixType: 'IPPrefix'
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   }
 ]
@@ -213,4 +252,5 @@ module testDeployment '../../../main.bicep' = [
 // Outputs        //
 // ============== //
 
+@sys.description('The resource ID of the Network Manager.')
 output result object = testDeployment[0].outputs

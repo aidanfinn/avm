@@ -11,18 +11,26 @@ metadata description = 'Deploys a Security Admin Rule Collection to a Security A
 @sys.description('The name of the parent Security Admin Configuration in Azure Network Manager.')
 param securityAdminConfigurationName string
 
-import { securityAdminConfigurationRulesCollectionsType } from '../types/network-managers-types.bicep'
+import { securityAdminConfigurationruleCollectionsType } from '../types/securityAdminConfigurations.bicep'
 @sys.description('The Rule Collection to deploy.')
-param ruleCollection securityAdminConfigurationRulesCollectionsType
+param ruleCollection securityAdminConfigurationruleCollectionsType
 
 // ================//
 // Deployments     //
 // ================//
 
-resource ruleCollectionModule 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections@2024-07-01' = {
+resource ruleCollectionResource 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections@2024-07-01' = {
   name: '${securityAdminConfigurationName}/${ruleCollection.name}'
   properties: {
-    appliesToGroups: ruleCollection.?appliesToGroups ?? []
+    appliesToGroups: [
+      for group in (ruleCollection.?appliesToGroups ?? []): {
+        networkGroupId: resourceId(
+          'Microsoft.Network/networkManagers/networkGroups',
+          split(securityAdminConfigurationName, '/')[0],
+          group.networkGroupName
+        )
+      }
+    ]
     description: ruleCollection.?description ?? ''
   }
 }
@@ -30,7 +38,7 @@ resource ruleCollectionModule 'Microsoft.Network/networkManagers/securityAdminCo
 module rulesModule 'rule.bicep' = [for rule in ruleCollection.?rules ?? []: {
   name: rule.name
   params: {
-    ruleCollectionName: ruleCollection.name
+    ruleCollectionName: ruleCollectionResource.name
     rule: rule
   }
 }]
@@ -40,10 +48,10 @@ module rulesModule 'rule.bicep' = [for rule in ruleCollection.?rules ?? []: {
 // ================//
 
 @sys.description('The resource ID of the Rule Collection.')
-output id string = ruleCollectionModule.id
+output id string = ruleCollectionResource.id
 
 @sys.description('The name of the Rule Collection')
-output name string = ruleCollectionModule.name
+output name string = ruleCollectionResource.name
 
 @sys.description('The rules of the Rule Collection.')
 output rules array = [

@@ -39,8 +39,20 @@ module ruleCollectionModules 'ruleCollection.bicep' = [
 // Outputs         //
 // ================//
 
+@sys.description('The resource ID of the Routing Configuration.')
 output id string = routingConfig.id
+
+@sys.description('The name of the Routing Configuration.')
 output name string = routingConfig.name
+
+@sys.description('The rule collections of the Routing Configuration.')
+output ruleCollections array = [
+  for (i, ruleCollection) in range(0, length(routingConfiguration.?ruleCollections ?? [])): {
+    id: ruleCollectionModules[i].outputs.id
+    name: ruleCollectionModules[i].outputs.name
+    rules: ruleCollectionModules[i].outputs.rules
+  }
+]
 
 // =============== //
 //   Definitions   //

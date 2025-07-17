@@ -52,5 +52,8 @@ resource staticMembers 'Microsoft.Network/networkManagers/networkGroups/staticMe
 // Outputs         //
 // ================//
 
+@sys.description('The resource ID of the Network Group.')
 output id string = networkGroupResource.id
+
+@sys.description('The name of the Network Group.')
 output name string = networkGroupResource.name
