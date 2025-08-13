@@ -40,9 +40,7 @@ module ruleModule 'rule.bicep' = [
   for (rule, i) in (ruleCollection.?rules ?? []): {
   name: 'rules-${i}'
   params: {
-    rule: {
-      name: rule.name
-    }
+    rule: rule
     ruleCollectionName: ruleCollectionResource.name
   }
 }]

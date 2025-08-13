@@ -23,14 +23,8 @@ resource routingRuleResource 'Microsoft.Network/networkManagers/routingConfigura
   name: '${ruleCollectionName}/${rule.name}'
   properties: {
     description: rule.?description ?? ''
-    destination: {
-      type: 'AddressPrefix'
-      destinationAddress: '0.0.0.0/0'
-    }
-    nextHop: {
-      nextHopType: 'VirtualAppliance'
-      nextHopAddress: '10.1.1.4'
-    }
+    destination: !empty(rule.?destination) ? rule.?destination : {}
+    nextHop: !empty(rule.?nextHop) ? rule.?nextHop : {}
   }
 }
 
