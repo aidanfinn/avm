@@ -200,6 +200,17 @@ module testDeployment '../../../main.bicep' = [
                     nextHopAddress: '10.1.1.4'
                   }
                 }
+                {
+                  name: 'nowhere'
+                  description: 'Override the default route all traffic everywhere'
+                  destination: {
+                    type: 'AddressPrefix'
+                    destinationAddress: '129.228.0.0/16'
+                  }
+                  nextHop: {
+                    nextHopType: 'NoNextHop'
+                  }
+                }
               ]
             }
           ]
