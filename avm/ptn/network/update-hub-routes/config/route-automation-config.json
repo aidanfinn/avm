@@ -1,0 +1,34 @@
+{
+  "firewallIp": "10.101.1.4",
+  "configureRouterSubnets": {
+    "Subnets": [
+      "GatewaySubnet",
+      "NvaRouterBackendSubnet"
+    ],
+    "SkipPrefixes": [],
+    "SkipVnets": [
+      "p-db1gw-net-vnet",
+      "p-md1hub-net-vnet"
+    ]
+  },
+  "requiredRoutes": [
+    {
+      "Name": "p-db1gw-net-vnet",
+      "Prefix": "10.1.8.0/22",
+      "NextHopType": "None",
+      "Subnets": [
+        "GatewaySubnet",
+        "NvaRouterBackendSubnet"
+      ]
+    },
+    {
+      "Name": "md1",
+      "Prefix": "10.102.0.0/16",
+      "NextHopType": "VirtualAppliance",
+      "NextHopIpAddress": "10.102.1.4",
+      "Subnets": [
+        "AzureFirewallSubnet"
+      ]
+    }
+  ]
+}
