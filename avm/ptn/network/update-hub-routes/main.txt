@@ -62,38 +62,27 @@ resource partnerLink 'Microsoft.Resources/deployments@2021-04-01' = if (!empty(p
   })
 }
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: resourceGroupName
-  location: location
-  tags: union(tags, {
-    Purpose: 'A solution to automate the creation and maintenance of User-Defined Routes in the hub Virtual Network.'
-  })
+module resourceGroup 'br/public:avm/res/resources/resource-group:0.4.2' = {
+  name: 'resourceGroupDeployment'
+  params: {
+    name: resourceGroupName
+    location: location
+    tags: union(tags, {
+      Purpose: 'A solution to automate the creation and maintenance of User-Defined Routes in the hub Virtual Network.'
+    })
+    lock: lock
+  }
 }
 
 module storage 'storage/main.bicep' = {
   name: 'storageDeployment'
-  scope: resourceGroup
+  scope: resourceGroup(resourceGroupName)
   params: {
     location: location
     tags: tags
     lock: lock
     roleAssignments: roleAssignments
     resourceGroupName: resourceGroupName
-  }
-}
-
-module automation 'automation/main.bicep' = {
-  name: 'automationDeployment'
-  scope: resourceGroup
-  params: {
-    location: location
-    tags: tags
-    lock: lock
-    roleAssignments: roleAssignments
-    resourceGroupName: resourceGroupName
-    diagnosticSettings: diagnosticSettings
-    storageAccountName: storage.outputs.name
-    hubDetails: hubDetails
   }
 }
 
@@ -102,22 +91,4 @@ module automation 'automation/main.bicep' = {
 // ================//
 
 @sys.description('The resource group the solution was deployed into.')
-output resourceGroupName string = resourceGroup.name
-
-@sys.description('The name of the Storage Account deployed.')
-output storageAccountName string = storage.outputs.name
-
-@sys.description('The resource ID of the Storage Account deployed.')
-output storageAccountResourceId string = storage.outputs.resourceId
-
-@sys.description('The name of the Automation Account deployed.')
-output automationAccountName string = automation.outputs.name
-
-@sys.description('The resource ID of the Automation Account deployed.')
-output automationAccountResourceId string = automation.outputs.resourceId
-
-@sys.description('The name of the Blob Container created to store the route configuration file.')
-output containerName string = storage.outputs.containerName
-
-@sys.description('The principal ID of the Automation Account\'s system assigned managed identity.')
-output automationAccountSystemAssignedMIPrincipalId string = automation.outputs.systemAssignedMIPrincipalId
+output resourceGroupName string = resourceGroup.outputs.name
